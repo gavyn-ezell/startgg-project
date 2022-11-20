@@ -2,11 +2,10 @@
 <html>
 <head>
 <title>SSBU Player Info</title>
-<script src="/main.js"></script>
+<script type="module" src="./source/scripts/main.js"></script>
 </head>
 <body>
 
-    <button id="data-button" type="button">Get Port Priority 7 Data</button>
     <div id="data">
     </div>
 
@@ -24,8 +23,12 @@
             <label for="playerID">ID:</label>
             <input type="text" id="playerID" name="playerID"><br>
             </label>
+
+            <input type="submit" id="player-search-form-submission" name="player-search-form-submission">
         </fieldset>
     </form>
-    <button type="submit" id="player-search-form-submission">Get Upcoming Tournies</button>
+
+    <div id="player-tourney-data">
+    </div>
 </body>
 </html>

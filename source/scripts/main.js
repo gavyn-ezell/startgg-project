@@ -1,139 +1,83 @@
+
+import { query_player_tournaments } from './queries.js';
+
+//form initialization for player ID input
 window.addEventListener("DOMContentLoaded", init);
 
-
 function init() {
-    setupButton();
-    initFormHandler();
-}
-
-function setupButton() {
-    var test;
-    let btn = document.getElementById('data-button');
-    btn.addEventListener('click', async ()=> {
-        //TODO: make test fetch request, put some response info into p element
-        const div = document.getElementById('data');
-        while (div.firstChild) {
-            div.removeChild(div.lastChild);
-        }
-        //this query is for a tournament's placements
-        // variable determines how many are shown (aka top3, top2, top8?)
-        const query = `
-        query EventStandings($eventId: ID!, $page: Int!, $perPage: Int!) {
-            event(id: $eventId) {
-              id
-              name
-              standings(query: {
-                perPage: $perPage,
-                page: $page
-              }){
-                nodes {
-                  placement
-                  entrant {
-                    id
-                    name
-                  }
-                }
-              }
-            }
-          }
-        `;
-        let r = await fetch('https://api.start.gg/gql/alpha', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer c7ee5b396ab4bae2c39f64ac532c686b',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                'query': query,
-                'variables': {
-                    "eventId": 757796,
-                    "page": 1,
-                    "perPage": 8
-                }
-            })
-
-        }).then(response => {
-            return response.json();
-        }).then(data => {
-            console.log(data);
-            return data;
-        });
-        
-        let top = r.data.event.standings.nodes
-        let topNum = r.data.event.standings.nodes.length;
-        //div = document.getElementById('data');
-        let h1 = document.createElement('h1')
-        h1.innerHTML = "TOP " + topNum + " RESULTS FOR Port Priority 7";
-        div.append(h1);
-        
-        for (x in top) {
-            let currP = document.createElement('p');
-            currP.innerHTML = top[x].placement + ' ' + top[x].entrant.name + 'ID: ' + top[x].entrant.id;
-            //console.log(top3[x]);
-            div.append(currP);
-        }
-    });
+  initFormHandler();
 }
 
 function initFormHandler() {
-  //TODO: Grab the user inputted ID from the form submission box
-  let theForm = document.querySelector('form')
-  let submit = document.getElementById('player-search-form-submission');
-  let ID;
-  submit.addEventListener('click', async () => { 
-    let formData = new FormData(theForm); 
-    for (let [key, value] of formData) {
-      
-      ID = parseInt(value);
+
+  //Grab the user inputted ID from the form submission box and make request
+  let theForm = document.querySelector('form');
+  theForm.addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
+    //clearing current player-tourney data being displayed
+    let data = document.getElementById("player-tourney-data");
+    while (data.hasChildNodes()) {
+      data.removeChild(data.firstChild);
     }
     
-    //ID = parseInt(formData['playerID']);
-    //TODO: Make the query with given ID (given ID is playerID variable in query)
-    const p_query = `
-    query upcomingTournies($playerId: ID!, $page: Int!, $perPage: Int! ) {
-      player (id: $playerId) {
-        user {
-          tournaments (query: {perPage: $perPage, page: $page}) {
-            nodes {
-              name
-              slug
-              id
-              numAttendees
-              countryCode
-              startAt
-            }
-          }
-        }
+    //grabbing inputted ID
+    let formData = new FormData(theForm); 
+    let playerId = formData.get('playerID');
+
+    //making the query then filtering upcoming tournies
+    let result = await query_player_tournaments(playerId);
+    /*
+    *
+    *  This checks if response gives any data for ID given,
+    *  and if not, then we just tell user no ID found
+    *  However, with eventual hardcoded database of names, this shouldnt need to exist
+    */
+    if (!(result.data.player)) {
+      let dataMsg = document.createElement('h2');
+      dataMsg.innerText = `ID not found`;
+      data.append(dataMsg);
+      return;
+    }
+    let tournies = result.data.player.user.tournaments.nodes;
+    let upcomingTournies = []
+    
+    //we wanna grab tournies from now to later, for later organizing
+    for (let i = 0; i < tournies.length; i++) {
+
+      if (tournies[i.toString()].startAt >= Math.floor(Date.now() / 1000)) {
+        upcomingTournies.push(tournies[i]);
       }
     }
-    `;
-    localStorage.setItem(1,1);
+    
+    
+    //are there any upcoming tournies!?
+    let dataMsg = document.createElement('h2');
+    if (upcomingTournies.length == 0) {
+      dataMsg.innerText = `No Upcoming Tournies for ${playerId}`;
+      data.append(dataMsg);
+    }
+    else {
+      let count = 1
+      dataMsg.innerText = `Upcoming Tournies for ${playerId}`;
+      data.append(dataMsg);
+      while (upcomingTournies.length != 0) {
+        let currP = document.createElement('p');
+        let currTourney = upcomingTournies.pop();
+        //grabbing date for display
+        let currTimestamp = currTourney['startAt'] * 1000;
+        const dateObject = new Date(currTimestamp);
 
-    let r = await fetch('https://api.start.gg/gql/alpha', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer c7ee5b396ab4bae2c39f64ac532c686b',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                'query': p_query,
-                'variables': {
-                  "playerId": ID,
-                  "page": 1,
-                  "perPage": 5
-                }
-            })
+        
+        let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+        currP.innerText = `${count}. ${currTourney['name']}: ${currDate}`;
+        data.append(currP);
+        count++;
+      }
+    }
 
-        }).then(response => {
-            console.log(response);
-            return response.json();
-        }).then(data => {
-            console.log(data);
-            return data;
-        });
-
-    //TODO: output upcoming tournaments to page after successful query
   });
+
+
 }
