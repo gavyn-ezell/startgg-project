@@ -1,5 +1,5 @@
 # startgg-project
-upcomingFeat
+
 **Description**
 
 Site/dashboard for avid SSBU tournament watchers and fans.
