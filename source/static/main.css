@@ -1,0 +1,80 @@
+body {
+    background-color: #222222;
+    font-family: 'Heebo', sans-serif;
+    color: whitesmoke;
+}
+#autocomplete {
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 7px;
+    z-index: 95;
+    
+}
+#directions-header {
+    position: relative;
+    text-align: center;
+    font-size: 3vmax;
+    left: 50%;
+    transform: translateX(-50%);
+}
+input {
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+input[type=text] {
+    background-color: #f1f1f1;
+    width: 100%;
+}
+
+input[type=submit] {
+    background-color: grey;
+    color: #fff;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+input[type=submit]:hover {
+    background-color: #3ad389;
+}
+
+input[type=submit]:active {
+    background-color: grey;
+}
+
+.autocomplete-items {
+    color: #222222;
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.autocomplete-items div:hover {
+    /*when hovering an item:*/
+    background-color: dodgerblue;
+}
+
+#player-tourney-data {
+    text-align: center;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}

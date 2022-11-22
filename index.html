@@ -2,30 +2,21 @@
 <html>
 <head>
 <title>SSBU Player Info</title>
+<link rel="stylesheet" href="./source/static/main.css">
 <script type="module" src="./source/scripts/main.js"></script>
 </head>
 <body>
 
     <div id="data">
     </div>
-
-    <h1>Player IDS to Test</h1>
-    <ul>
-        <li>Tweek: 15768</li>
-        <li>ProtoBanham: 1041641</li>
-        <li>Atelier: 553122</li>
-    </ul>
-    <br>
-    Insert Player ID for upcoming tournaments
-    <form id="player-search-form">
-        <fieldset>
-            <legend>Player ID</legend>
-            <label for="playerID">ID:</label>
-            <input type="text" id="playerID" name="playerID"><br>
-            </label>
-
-            <input type="submit" id="player-search-form-submission" name="player-search-form-submission">
-        </fieldset>
+    <h2 id="directions-header">FIND PLAYER INFORMATION</h2>
+    <form autocomplete="off" id="player-search-form">
+            <div id="autocomplete">
+                <input type="text" id="playerTag" placeholder="Player Tag" name="playerTag">
+            </div>
+            <br>
+                
+            <input type="submit" id="player-search-form-submission" name="player-search-form-submission" value="Search">
     </form>
 
     <div id="player-tourney-data">
