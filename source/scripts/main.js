@@ -1,139 +1,203 @@
+
+import { query_player_tournaments } from './queries.js';
+import players from './players.json' assert {type: 'json'};
+//form initialization for player ID input
 window.addEventListener("DOMContentLoaded", init);
 
-
 function init() {
-    setupButton();
-    initFormHandler();
-}
-
-function setupButton() {
-    var test;
-    let btn = document.getElementById('data-button');
-    btn.addEventListener('click', async ()=> {
-        //TODO: make test fetch request, put some response info into p element
-        const div = document.getElementById('data');
-        while (div.firstChild) {
-            div.removeChild(div.lastChild);
-        }
-        //this query is for a tournament's placements
-        // variable determines how many are shown (aka top3, top2, top8?)
-        const query = `
-        query EventStandings($eventId: ID!, $page: Int!, $perPage: Int!) {
-            event(id: $eventId) {
-              id
-              name
-              standings(query: {
-                perPage: $perPage,
-                page: $page
-              }){
-                nodes {
-                  placement
-                  entrant {
-                    id
-                    name
-                  }
-                }
-              }
-            }
-          }
-        `;
-        let r = await fetch('https://api.start.gg/gql/alpha', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer c7ee5b396ab4bae2c39f64ac532c686b',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                'query': query,
-                'variables': {
-                    "eventId": 757796,
-                    "page": 1,
-                    "perPage": 8
-                }
-            })
-
-        }).then(response => {
-            return response.json();
-        }).then(data => {
-            console.log(data);
-            return data;
-        });
-        
-        let top = r.data.event.standings.nodes
-        let topNum = r.data.event.standings.nodes.length;
-        //div = document.getElementById('data');
-        let h1 = document.createElement('h1')
-        h1.innerHTML = "TOP " + topNum + " RESULTS FOR Port Priority 7";
-        div.append(h1);
-        
-        for (x in top) {
-            let currP = document.createElement('p');
-            currP.innerHTML = top[x].placement + ' ' + top[x].entrant.name + 'ID: ' + top[x].entrant.id;
-            //console.log(top3[x]);
-            div.append(currP);
-        }
-    });
+  
+  initFormHandler();
+  let input = document.getElementById("playerTag")
+  autocomplete(input,Object.keys(players));
 }
 
 function initFormHandler() {
-  //TODO: Grab the user inputted ID from the form submission box
-  let theForm = document.querySelector('form')
-  let submit = document.getElementById('player-search-form-submission');
-  let ID;
-  submit.addEventListener('click', async () => { 
-    let formData = new FormData(theForm); 
-    for (let [key, value] of formData) {
-      
-      ID = parseInt(value);
+
+
+  
+  
+  
+  //Grab the user inputted ID from the form submission box and make request
+  let theForm = document.querySelector('form');
+  theForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    //clearing current player-tourney data being displayed
+    let data = document.getElementById("player-tourney-data");
+    while (data.hasChildNodes()) {
+      data.removeChild(data.firstChild);
     }
     
-    //ID = parseInt(formData['playerID']);
-    //TODO: Make the query with given ID (given ID is playerID variable in query)
-    const p_query = `
-    query upcomingTournies($playerId: ID!, $page: Int!, $perPage: Int! ) {
-      player (id: $playerId) {
-        user {
-          tournaments (query: {perPage: $perPage, page: $page}) {
-            nodes {
-              name
-              slug
-              id
-              numAttendees
-              countryCode
-              startAt
-            }
-          }
-        }
+    //grabbing inputted tag
+    let formData = new FormData(theForm); 
+    let playerTag = formData.get('playerTag');
+    
+    //checking if tag in our DB
+    if (!(playerTag in players)) {
+      let dataMsg = document.createElement('h2');
+      dataMsg.innerText = `Player not Found`;
+      data.append(dataMsg);
+      return;
+    }
+    
+    let playerId = players[playerTag];
+
+    //making the query then filtering upcoming tournies
+    let result = await query_player_tournaments(playerId);
+    /*
+    *
+    *  This checks if response gives any data for ID given,
+    *  and if not, then we just tell user no ID found
+    *  However, with eventual hardcoded database of names, this shouldnt need to exist
+    */
+    if (!(result.data.player)) {
+      let dataMsg = document.createElement('h2');
+      dataMsg.innerText = `ID not found`;
+      data.append(dataMsg);
+      return;
+    }
+    let tournies = result.data.player.user.tournaments.nodes;
+    let upcomingTournies = []
+    
+    //we wanna grab tournies from now to later, for later organizing
+    for (let i = 0; i < tournies.length; i++) {
+
+      if (tournies[i.toString()].startAt >= Math.floor(Date.now() / 1000)) {
+        upcomingTournies.push(tournies[i]);
       }
     }
-    `;
-    localStorage.setItem(1,1);
+    
+    
+    //are there any upcoming tournies!?
+    let dataMsg = document.createElement('h2');
+    if (upcomingTournies.length == 0) {
+      dataMsg.innerText = `No Upcoming Tournies for ${playerTag}`;
+      data.append(dataMsg);
+    }
+    else {
+      let count = 1
+      dataMsg.innerText = `Upcoming Tournies for ${playerTag}`;
+      data.append(dataMsg);
+      while (upcomingTournies.length != 0) {
+        let currP = document.createElement('p');
+        let currTourney = upcomingTournies.pop();
+        //grabbing date for display
+        let currTimestamp = currTourney['startAt'] * 1000;
+        const dateObject = new Date(currTimestamp);
 
-    let r = await fetch('https://api.start.gg/gql/alpha', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer c7ee5b396ab4bae2c39f64ac532c686b',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                'query': p_query,
-                'variables': {
-                  "playerId": ID,
-                  "page": 1,
-                  "perPage": 5
-                }
-            })
+        
+        let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+        currP.innerText = `${count}. ${currTourney['name']}: ${currDate}`;
+        data.append(currP);
+        count++;
+      }
+    }
 
-        }).then(response => {
-            console.log(response);
-            return response.json();
-        }).then(data => {
-            console.log(data);
-            return data;
-        });
-
-    //TODO: output upcoming tournaments to page after successful query
   });
 }
+
+/*
+*
+* Function for autocomplete, taken from:
+* https://www.w3schools.com/howto/howto_js_autocomplete.asp
+*
+*/
+function autocomplete(inp, arr) {
+  /*the autocomplete function takes two arguments,
+  the text field element and an array of possible autocompleted values:*/
+  var currentFocus;
+  /*execute a function when someone writes in the text field:*/
+  inp.addEventListener("input", function(e) {
+      
+      var a, b, i, val = this.value;
+      /*close any already open lists of autocompleted values*/
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      /*create a DIV element that will contain the items (values):*/
+      a = document.createElement("DIV");
+      a.setAttribute("id", this.id + "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      /*append the DIV element as a child of the autocomplete container:*/
+      this.parentNode.appendChild(a);
+      /*for each item in the array...*/
+      for (i = 0; i < arr.length; i++) {
+        /*check if the item starts with the same letters as the text field value:*/
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          /*create a DIV element for each matching element:*/
+          b = document.createElement("DIV");
+          /*make the matching letters bold:*/
+          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+          b.innerHTML += arr[i].substr(val.length);
+          /*insert a input field that will hold the current array item's value:*/
+          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+          /*execute a function when someone clicks on the item value (DIV element):*/
+              b.addEventListener("click", function(e) {
+              /*insert the value for the autocomplete text field:*/
+              inp.value = this.getElementsByTagName("input")[0].value;
+              /*close the list of autocompleted values,
+              (or any other open lists of autocompleted values:*/
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  /*execute a function presses a key on the keyboard:*/
+  inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the "active" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    /*a function to classify an item as "active":*/
+    if (!x) return false;
+    /*start by removing the "active" class on all items:*/
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    /*add class "autocomplete-active":*/
+    x[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(x) {
+    /*a function to remove the "active" class from all autocomplete items:*/
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove("autocomplete-active");
+    }
+  }
+  function closeAllLists(elmnt) {
+    /*close all autocomplete lists in the document,
+    except the one passed as an argument:*/
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+      x[i].parentNode.removeChild(x[i]);
+    }
+  }
+}
+/*execute a function when someone clicks in the document:*/
+document.addEventListener("click", function (e) {
+    closeAllLists(e.target);
+});
+}
+
+
