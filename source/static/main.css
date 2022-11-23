@@ -78,3 +78,11 @@ input[type=submit]:active {
     left: 50%;
     transform: translateX(-50%);
 }
+
+#player-tourney-data > p {
+    font-size: 12px;
+}
+
+#player-tourney-data > h2 {
+    text-decoration: underline;
+}
