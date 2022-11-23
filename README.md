@@ -10,3 +10,4 @@ such as recent results, and upcoming tournaments. Users can then set up a notifi
 - [Start.gg API](https://developer.start.gg/docs/intro/)
 - [GraphQL](https://graphql.org/)
 
+> :warning: **Still a work in progress**: Only basic functionality is there
