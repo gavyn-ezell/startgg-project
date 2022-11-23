@@ -1,5 +1,5 @@
 
-import { query_player_tournaments } from './queries.js';
+import { query_player_standings, query_player_tournaments } from './queries.js';
 import players from './players.json' assert {type: 'json'};
 //form initialization for player ID input
 window.addEventListener("DOMContentLoaded", init);
@@ -34,8 +34,8 @@ function initFormHandler() {
     
     //checking if tag in our DB
     if (!(playerTag in players)) {
-      let dataMsg = document.createElement('h2');
-      dataMsg.innerText = `Player not Found`;
+      let dataMsg = document.createElement('h1');
+      dataMsg.innerText = `PLAYER NOT FOUND`;
       data.append(dataMsg);
       return;
     }
@@ -69,15 +69,14 @@ function initFormHandler() {
     
     
     //are there any upcoming tournies!?
-    let dataMsg = document.createElement('h2');
+    let upcomingMsg = document.createElement('h2');
     if (upcomingTournies.length == 0) {
-      dataMsg.innerText = `No Upcoming Tournies for ${playerTag}`;
-      data.append(dataMsg);
+      upcomingMsg.innerText = `No Upcoming Tournies`;
+      data.append(upcomingMsg);
     }
     else {
-      let count = 1
-      dataMsg.innerText = `Upcoming Tournies for ${playerTag}`;
-      data.append(dataMsg);
+      upcomingMsg.innerText = `Upcoming Tournies`;
+      data.append(upcomingMsg);
       while (upcomingTournies.length != 0) {
         let currP = document.createElement('p');
         let currTourney = upcomingTournies.pop();
@@ -87,11 +86,30 @@ function initFormHandler() {
 
         
         let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
-        currP.innerText = `${count}. ${currTourney['name']}: ${currDate}`;
+        currP.innerText = `${currTourney['name']}: ${currDate}`;
         data.append(currP);
-        count++;
       }
     }
+
+    //now we want to grab recent standings
+    result = await query_player_standings(playerId);
+    let recentMsg = document.createElement('h2');
+    recentMsg.innerText = `Recent Placements`;
+    data.append(recentMsg);
+
+    //placings is an array of objects
+    let placings = result.data.player.recentStandings;
+    for (let i in placings) {
+      let currPlacing = document.createElement('p')
+      let name = placings[i].entrant.event.tournament.name; 
+      let eventName = placings[i].entrant.event.name;
+      let attendance = placings[i].entrant.event.numEntrants;
+      let placing = placings[i].placement
+      
+      currPlacing.innerText = `${name}: ${placing}/${attendance} in ${eventName}`;
+      data.append(currPlacing)
+    }
+    
 
   });
 }
