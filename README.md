@@ -12,4 +12,4 @@ such as recent results, and upcoming tournaments. Users can then set up a notifi
   
   Site: https://gavyn-ezell.github.io/startgg-project/
 
-> :warning: **Still a work in progress**: Only basic functionality is there
+> :warning: **Still a work in progress**: Basic Functionality Exists, more features to come
