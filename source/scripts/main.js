@@ -1,5 +1,5 @@
 
-import { query_player_standings, query_player_tournaments } from './queries.js';
+import { query_playercard_info } from './queries.js';
 import players from './players.json' assert {type: 'json'};
 //form initialization for player ID input
 window.addEventListener("DOMContentLoaded", init);
@@ -22,8 +22,12 @@ function initFormHandler() {
   theForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+
+
     //clearing current player-tourney data being displayed
     let data = document.getElementById("player-tourney-data");
+    
+    document.getElementById("player-search-form-submission").setAttribute("disabled", true);
     while (data.hasChildNodes()) {
       data.removeChild(data.firstChild);
     }
@@ -37,25 +41,71 @@ function initFormHandler() {
       let dataMsg = document.createElement('h1');
       dataMsg.innerText = `PLAYER NOT FOUND`;
       data.append(dataMsg);
+      document.getElementById("player-search-form-submission").removeAttribute("disabled");
       return;
     }
     
     let playerId = players[playerTag];
+    let tagHeader = document.createElement("h1");
+    tagHeader.innerText = playerTag;
+    data.append(tagHeader);
 
-    //making the query then filtering upcoming tournies
-    let result = await query_player_tournaments(playerId);
-    /*
-    *
-    *  This checks if response gives any data for ID given,
-    *  and if not, then we just tell user no ID found
-    *  However, with eventual hardcoded database of names, this shouldnt need to exist
-    */
-    if (!(result.data.player)) {
-      let dataMsg = document.createElement('h2');
-      dataMsg.innerText = `ID not found`;
-      data.append(dataMsg);
-      return;
+    let result = await query_playercard_info(playerId);
+    //first, grabbing pfp 
+    let imgUrl = result.data.player.user.images[0].url;
+    let imgTag = document.createElement("img");
+    imgTag.setAttribute("src", imgUrl);
+    imgTag.setAttribute("alt", playerTag);
+    imgTag.setAttribute("class", "pfp");
+    data.append(imgTag)
+    data.append(document.createElement("br"));
+
+    //second, grabbing socials
+    let socials = result.data.player.user.authorizations;
+    let validSocials = {}
+    
+    //getting only twitch and twitter if they exist
+    for (let i in socials) {
+      if (socials[i].type == 'TWITTER') {
+        if (socials[i].url) {
+          validSocials['TWITTER'] = socials[i].url;
+        }
+      }
+      else if (socials[i].type = 'TWITCH') {
+        if (socials[i].url) {
+          validSocials['TWITCH'] = socials[i].url;
+        }
+      }
     }
+    
+    //then we keep order consistent: Twitch, then twitter 
+    let socialsOrder = Object.keys(validSocials).sort();
+    for (let i in socialsOrder) {
+      if (socialsOrder[i] == 'TWITTER') {
+        let aTag = document.createElement("a");
+        aTag.setAttribute("href", validSocials["TWITTER"]);
+        let twitterImg = document.createElement("img");
+        twitterImg.setAttribute("src", "source/static/images/twt.png");
+        twitterImg.setAttribute("alt", "twitter");
+        twitterImg.setAttribute("class", "socials");
+        aTag.append(twitterImg)
+        data.append(aTag);
+      }
+      else {
+        let twitchImg = document.createElement("img");
+        twitchImg.setAttribute("src", "source/static/images/twitch.png");
+        twitchImg.setAttribute("alt", "twitch")
+        twitchImg.setAttribute("class", "socials");
+        
+        let aTag = document.createElement("a");
+        aTag.setAttribute("href", validSocials["TWITCH"]);
+        aTag.append(twitchImg)
+        data.append(aTag);
+      }
+    }
+    
+    //third, grabbing upcoming tournies
+    
     let tournies = result.data.player.user.tournaments.nodes;
     let upcomingTournies = []
     
@@ -91,8 +141,7 @@ function initFormHandler() {
       }
     }
 
-    //now we want to grab recent standings
-    result = await query_player_standings(playerId);
+    //fourth, we want to grab recent standings
     let recentMsg = document.createElement('h2');
     recentMsg.innerText = `Recent Placements`;
     data.append(recentMsg);
@@ -110,7 +159,7 @@ function initFormHandler() {
       data.append(currPlacing)
     }
     
-
+    document.getElementById("player-search-form-submission").removeAttribute("disabled");
   });
 }
 
