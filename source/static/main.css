@@ -73,10 +73,20 @@ input[type=submit]:active {
 }
 
 #player-tourney-data {
+    visibility: visible;
+    border: 3px solid gray;
+    border-radius: 7px;
     text-align: center;
     position: relative;
     left: 50%;
     transform: translateX(-50%);
+    padding: 40px;
+    margin-top: 10px;
+    width: 400px;
+}
+
+#player-tourney-data:empty {
+    visibility: hidden;
 }
 
 #player-tourney-data > p {
@@ -86,3 +96,24 @@ input[type=submit]:active {
 #player-tourney-data > h2 {
     text-decoration: underline;
 }
+
+.pfp {
+    border: 1px solid white;
+    border-radius:50% 50% 50% 50%; 
+    width:125px;
+    height:125px;
+    margin: auto;
+}
+
+.socials {
+    width: 25px;
+    height: 25px;
+    margin-top: 7px;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.socials:hover {
+    transform: scale(1.1);
+}
+
