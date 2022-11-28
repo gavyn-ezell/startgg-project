@@ -67,10 +67,14 @@ function initFormHandler() {
     //getting only twitch and twitter if they exist
     for (let i in socials) {
       if (socials[i].type == 'TWITTER') {
-        validSocials['TWITTER'] = socials[i].url;
+        if (socials[i].url) {
+          validSocials['TWITTER'] = socials[i].url;
+        }
       }
       else if (socials[i].type = 'TWITCH') {
-        validSocials['TWITCH'] = socials[i].url;
+        if (socials[i].url) {
+          validSocials['TWITCH'] = socials[i].url;
+        }
       }
     }
     
