@@ -22,8 +22,12 @@ function initFormHandler() {
   theForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+
+
     //clearing current player-tourney data being displayed
     let data = document.getElementById("player-tourney-data");
+    
+    document.getElementById("player-search-form-submission").setAttribute("disabled", true);
     while (data.hasChildNodes()) {
       data.removeChild(data.firstChild);
     }
@@ -110,7 +114,7 @@ function initFormHandler() {
       data.append(currPlacing)
     }
     
-
+    document.getElementById("player-search-form-submission").removeAttribute("disabled");
   });
 }
 
