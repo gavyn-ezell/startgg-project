@@ -1,3 +1,4 @@
+//setting up express app
 const fetch = require('node-fetch');
 const express = require('express');
 const app = express();
@@ -7,8 +8,9 @@ app.use(express.static('public'))
 
 app.listen(3000, () => console.log('Express App Listening at: 3000'));
 
+//for
 app.get('/player', async (request, response) => {
-    const player_query = await query_playercard_info(15768);
+    const player_query = await query_playercard_info(request.query.playerId);
     response.json(player_query);
 
 });

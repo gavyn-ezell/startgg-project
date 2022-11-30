@@ -45,21 +45,10 @@ function initFormHandler() {
     tagHeader.innerText = playerTag;
     data.append(tagHeader);
 
-    /*EXPRESS CALL TESTING*/
-    /********************/
-    let result = await fetch(`/player`);
+
+    let result = await fetch(`/player?playerId=${playerId}`);
     result  = await result.json();
-    //console.log(typeof(json));
-    //console.log(json);
     
-    
-    
-    
-    
-    
-    
-    
-    //let result = await query_playercard_info(playerId);
     //first, grabbing pfp 
     let imgUrl = result.data.player.user.images[0].url;
     let imgTag = document.createElement("img");
