@@ -55,7 +55,7 @@ export async function query_playercard_info(playerId) {
   let result = await fetch('https://api.start.gg/gql/alpha', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer c7ee5b396ab4bae2c39f64ac532c686b',
+                'Authorization': 'Bearer [INSERT STARTGG TOKEN HERE]',
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
