@@ -1,0 +1,29 @@
+{
+  "name": "startgg-project",
+  "version": "1.0.0",
+  "description": "For startgg player info project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gavyn-ezell/startgg-project.git"
+  },
+  "keywords": [
+    "graphql",
+    "api",
+    "ssbu"
+  ],
+  "author": "Gavyn Ezell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gavyn-ezell/startgg-project/issues"
+  },
+  "homepage": "https://github.com/gavyn-ezell/startgg-project#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.7"
+  }
+}

@@ -18,4 +18,3 @@ _Current version can only make individual searches for a player, one a time_
 - Personalized Player Card Dashboard, user registration
 - Notification System for upcoming tournaments
 - Better PlayerTag-PlayerId Database (still some missing players)
-- Node + Express Integration
