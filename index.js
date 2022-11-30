@@ -1,6 +1,8 @@
 const fetch = require('node-fetch');
 const express = require('express');
 const app = express();
+require('dotenv').config();
+
 app.use(express.static('public'))
 
 app.listen(3000, () => console.log('Express App Listening at: 3000'));
@@ -68,7 +70,7 @@ async function query_playercard_info(playerId) {
     let result = await fetch('https://api.start.gg/gql/alpha', {
               method: 'POST',
               headers: {
-                  'Authorization': 'Bearer c7ee5b396ab4bae2c39f64ac532c686b',
+                  'Authorization': `Bearer ${process.env.API_KEY}`,
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
               },
