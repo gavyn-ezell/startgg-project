@@ -8,14 +8,13 @@ app.use(express.static('public'))
 
 app.listen(3000, () => console.log('Express App Listening at: 3000'));
 
-//for
+//request for getting a player's information through the startgg api
 app.get('/player', async (request, response) => {
     const player_query = await query_playercard_info(request.query.playerId);
     response.json(player_query);
 
 });
 
-// Query Functions for site functionality
 
 /*
 *  One giant query that gets player's recent placements, upcoming tournies, and socials
@@ -23,7 +22,7 @@ app.get('/player', async (request, response) => {
 */
 async function query_playercard_info(playerId) {
 
-    //setting up the query
+    //setting up the query string
     let query_playercard_info = `
     query ($playerId: ID!) {
       player(id: $playerId) {
@@ -68,7 +67,7 @@ async function query_playercard_info(playerId) {
       }
     }
     `;
-  
+    //using query string for proper api request
     let result = await fetch('https://api.start.gg/gql/alpha', {
               method: 'POST',
               headers: {
@@ -88,6 +87,5 @@ async function query_playercard_info(playerId) {
           }).then(data => {
               return data;
           });
-    //console.log(result);
     return result;
 }

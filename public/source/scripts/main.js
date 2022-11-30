@@ -1,4 +1,6 @@
+//using created players db
 import players from './players.json' assert {type: 'json'};
+
 //form initialization for player ID input
 window.addEventListener("DOMContentLoaded", init);
 
@@ -9,17 +11,19 @@ function init() {
   autocomplete(input,Object.keys(players));
 }
 
+/*
+* Setting up the form functionality
+* Form is just the field for user to input their player tag for searching
+*
+*/
 function initFormHandler() {
   //Grab the user inputted ID from the form submission box and make request
   let theForm = document.querySelector('form');
   theForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-
-
     //clearing current player-tourney data being displayed
     let data = document.getElementById("player-tourney-data");
-    
     document.getElementById("player-search-form-submission").setAttribute("disabled", true);
     while (data.hasChildNodes()) {
       data.removeChild(data.firstChild);
@@ -45,7 +49,7 @@ function initFormHandler() {
     tagHeader.innerText = playerTag;
     data.append(tagHeader);
 
-
+    //finally grabbing data for player
     let result = await fetch(`/player?playerId=${playerId}`);
     result  = await result.json();
     
@@ -103,7 +107,6 @@ function initFormHandler() {
     }
     
     //third, grabbing upcoming tournies
-    
     let tournies = result.data.player.user.tournaments.nodes;
     let upcomingTournies = []
     
@@ -264,5 +267,3 @@ document.addEventListener("click", function (e) {
     closeAllLists(e.target);
 });
 }
-
-
