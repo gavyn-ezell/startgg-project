@@ -1,5 +1,3 @@
-
-import { query_playercard_info } from './queries.js';
 import players from './players.json' assert {type: 'json'};
 //form initialization for player ID input
 window.addEventListener("DOMContentLoaded", init);
@@ -12,11 +10,6 @@ function init() {
 }
 
 function initFormHandler() {
-
-
-  
-  
-  
   //Grab the user inputted ID from the form submission box and make request
   let theForm = document.querySelector('form');
   theForm.addEventListener('submit', async (e) => {
@@ -54,9 +47,10 @@ function initFormHandler() {
 
     /*EXPRESS CALL TESTING*/
     /********************/
-    const newresult = await fetch(`/player`);
-    const json = await newresult.json();
-    console.log(json);
+    let result = await fetch(`/player`);
+    result  = await result.json();
+    //console.log(typeof(json));
+    //console.log(json);
     
     
     
@@ -65,7 +59,7 @@ function initFormHandler() {
     
     
     
-    let result = await query_playercard_info(playerId);
+    //let result = await query_playercard_info(playerId);
     //first, grabbing pfp 
     let imgUrl = result.data.player.user.images[0].url;
     let imgTag = document.createElement("img");
