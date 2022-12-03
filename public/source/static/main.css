@@ -3,6 +3,9 @@ body {
     font-family: 'Heebo', sans-serif;
     color: whitesmoke;
 }
+#search-section {
+    height: 100vh;
+}
 #autocomplete {
     position: relative;
     display: inline-block;
@@ -12,7 +15,7 @@ body {
     z-index: 95;
     
 }
-#directions-header {
+.header2 {
     position: relative;
     text-align: center;
     font-size: 3vmax;
@@ -29,6 +32,10 @@ input {
 
 input[type=text] {
     background-color: #f1f1f1;
+    width: 100%;
+}
+
+hr {
     width: 100%;
 }
 
@@ -80,8 +87,9 @@ input[type=submit]:active {
     position: relative;
     left: 50%;
     transform: translateX(-50%);
-    padding: 40px;
+    padding: 20px;
     margin-top: 10px;
+    height: 70vh;
     width: 400px;
 }
 
@@ -115,5 +123,39 @@ input[type=submit]:active {
 
 .socials:hover {
     transform: scale(1.1);
+}
+
+.pin {
+    width:30px;
+    height:30px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    left: auto;
+    z-index: 100;
+}
+
+.pin:hover {
+    cursor: pointer;
+}
+
+#card-container {
+    display: grid;
+    justify-content: space-evenly;
+    grid-template-columns: auto auto;
+    grid-gap: 10px;
+}
+
+.player-card {
+    visibility: visible;
+    border: 3px solid gray;
+    border-radius: 7px;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 40px;
+    margin-top: 10px;
+    width: 300px;
 }
 

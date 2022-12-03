@@ -9,7 +9,7 @@ app.use(express.static('public'))
 app.listen(3000, () => console.log('Express App Listening at: 3000'));
 
 //request for getting a player's information through the startgg api
-app.get('/player', async (request, response) => {
+app.post('/player', async (request, response) => {
     const player_query = await query_playercard_info(request.query.playerId);
     response.json(player_query);
 

@@ -6,10 +6,120 @@ window.addEventListener("DOMContentLoaded", init);
 
 function init() {
   
+  loadPlayerCards();
   initFormHandler();
   let input = document.getElementById("playerTag")
-  autocomplete(input,Object.keys(players));
+  autocomplete(input, Object.keys(players));
 }
+
+
+/*
+/*
+* Loading the page with player cards of players who were
+* pinned by user (aka saved in storage!)
+*
+*/
+async function loadPlayerCards() {
+  let flexbox = document.getElementById("card-container");
+  let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+  if (!(pinnedPlayers)) {
+    localStorage.setItem("pinnedPlayers", JSON.stringify([]));
+    return;
+  }
+  else {
+    //load each player card
+    for (let i in pinnedPlayers) {
+      //make request and make object
+      let playerCardObject = await makePlayerCardData(pinnedPlayers[i]);
+      
+      //create custom player card
+      let playerCard = document.createElement('player-card')
+      playerCard.data = playerCardObject;
+      //add player card to flexbox
+      flexbox.append(playerCard);
+    }
+  }
+}
+
+/**
+ * Given a playerId, grab the the necessary player card data, and put inside object for
+ * the custom PlayerCard element
+ * @param  {String} A player's StartGG gamerTag
+ * @returns {Object} Object with player data
+ */
+async function makePlayerCardData(playerTag) {
+  let playerId = players[playerTag];
+  let result = {}
+  let options = {
+    "method": "POST"
+  }
+  let fetch_result = await fetch(`/player?playerId=${playerId}`, options);
+  fetch_result = await fetch_result.json();
+  //name, id
+  result["playerTag"] = playerTag;
+  result["playerId"] = playerId;
+  //profile pic, twitch, twitter
+  result["pic"] = fetch_result.data.player.user.images[0].url;
+  
+    
+  //getting only twitch and twitter if they exist
+  let socials = fetch_result.data.player.user.authorizations;
+  result["twitchUrl"] = null;
+  result["twitchUrl"] = null;
+  for (let i in socials) {
+    if (socials[i].type == 'TWITTER') {
+      if (socials[i].url) {
+        result["twitterUrl"] = socials[i].url;
+      }
+    }
+    else if (socials[i].type = 'TWITCH') {
+      if (socials[i].url) {
+        result["twitchUrl"] = socials[i].url;
+      }
+    }
+  }
+
+  //upcoming tournies
+  result["upcoming"] = [];
+  let tournies = fetch_result.data.player.user.tournaments.nodes;
+  let upcomingTournies = []
+  
+  //we wanna grab tournies from now to later, for later organizing
+  for (let i = 0; i < tournies.length; i++) {
+
+    if (tournies[i.toString()].startAt >= Math.floor(Date.now() / 1000)) {
+      upcomingTournies.push(tournies[i]);
+    }
+  }
+
+  while (upcomingTournies.length != 0) {
+    let currTourney = upcomingTournies.pop();
+    //grabbing date for display
+    let currTimestamp = currTourney['startAt'] * 1000;
+    const dateObject = new Date(currTimestamp);
+
+    
+    let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+    result["upcoming"].push(`${currTourney['name']}: ${currDate}`);
+
+  }
+
+  //recent standings
+  result["recent"] = []
+  //placings is an array of objects
+  let placings = fetch_result.data.player.recentStandings;
+  for (let i in placings) {
+    let name = placings[i].entrant.event.tournament.name; 
+    let eventName = placings[i].entrant.event.name;
+    let attendance = placings[i].entrant.event.numEntrants;
+    let placing = placings[i].placement
+    
+    result["recent"].push(`${name}: ${placing}/${attendance} in ${eventName}`);
+  }
+  return result;
+
+}
+
 
 /*
 * Setting up the form functionality
@@ -28,10 +138,13 @@ function initFormHandler() {
     while (data.hasChildNodes()) {
       data.removeChild(data.firstChild);
     }
+
+    
     
     //grabbing inputted tag
     let formData = new FormData(theForm); 
     let playerTag = formData.get('playerTag');
+
     
     //checking if tag in our DB
     if (!(playerTag in players)) {
@@ -42,6 +155,35 @@ function initFormHandler() {
       return;
     }
 
+    //adding pin button
+    let pinBtn = document.createElement("img");
+    let startSrc;
+    pinBtn.setAttribute("src",(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag) ? "source/static/images/pin-green.png" : "source/static/images/pin.png"));
+    pinBtn.setAttribute("alt","PIN");
+    pinBtn.setAttribute("class","pin");
+    
+    pinBtn.addEventListener("click", () => {
+      if (pinBtn.getAttribute("src") == "source/static/images/pin.png") {
+        //pin and add player to storage
+        pinBtn.setAttribute("src","source/static/images/pin-green.png");
+        let activePlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+        activePlayers.push(playerTag);
+        localStorage.setItem("pinnedPlayers", JSON.stringify(activePlayers));
+
+      }
+      else {
+        //unpin and remove player from storage
+        pinBtn.setAttribute("src","source/static/images/pin.png");
+        let activePlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+        for (let i in activePlayers) {
+          if (activePlayers[i] == playerTag) {
+            activePlayers.splice(i,1);
+          }
+        }
+        localStorage.setItem("pinnedPlayers", JSON.stringify(activePlayers));
+      }
+    });
+    data.append(pinBtn);
     
     //setting up player card info, 'playerTag'
     let playerId = players[playerTag];
@@ -50,8 +192,12 @@ function initFormHandler() {
     data.append(tagHeader);
 
     //finally grabbing data for player
-    let result = await fetch(`/player?playerId=${playerId}`);
+    let options = {
+      "method": "POST"
+    }
+    let result = await fetch(`/player?playerId=${playerId}`, options);
     result  = await result.json();
+
     
     //first, grabbing pfp 
     let imgUrl = result.data.player.user.images[0].url;
