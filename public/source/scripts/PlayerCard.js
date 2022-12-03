@@ -19,10 +19,23 @@ class PlayerCard extends HTMLElement {
             position: relative;
             left: 50%;
             transform: translateX(-50%);
-            padding: 40px;
+            padding: 30px;
             margin-top: 10px;
             height: 500px;
             width: 400px;
+        }
+        .plus {
+            width:50px;
+            height:60px;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            left: auto;
+            z-index: 100;
+        }
+
+        .plus:hover {
+            transform: scale(1.24);
         }
         .player-card > .pfp {
             border: 1px solid white;
@@ -37,6 +50,9 @@ class PlayerCard extends HTMLElement {
             margin-top: 7px;
             margin-right: 5px;
             margin-left: 5px;
+        }
+        .socials:hover {
+            transform: scale(1.1);
         }
 
         .player-card > h2 {
@@ -60,6 +76,8 @@ class PlayerCard extends HTMLElement {
    * @param {Object} data - The data to pass into the <recipe-card>, must be of the
    *                        following format:
    *                        {
+   *                          "needPlus : bool,
+   *                          "needMinus": bool,
    *                          "playerTag": "string",
    *                          "playerId": "string",
    *                          "pic": "string",
@@ -75,6 +93,23 @@ class PlayerCard extends HTMLElement {
     }
     //grab div then populate afterwards
     let divEl = this.shadowEl.querySelector('div');
+    
+    //dealing with plus button
+    if (data["needPlus"]) {
+        let plusBtn = document.createElement("img");
+        plusBtn.setAttribute("src","source/static/images/plus.png");
+        plusBtn.setAttribute("alt","plus");
+        plusBtn.setAttribute("class","plus");
+        plusBtn.addEventListener("click", ()=> {
+            if(confirm("Add player to dashboard?")) {
+                let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+                pinnedPlayers.push(data["playerTag"]);
+                localStorage.setItem("pinnedPlayers", JSON.stringify(pinnedPlayers));
+                location.reload();
+            }
+        });
+        divEl.append(plusBtn);
+    }
 
     //setting up player's name at top of card
     let playerTag = document.createElement("h1");

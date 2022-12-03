@@ -12,22 +12,32 @@
     <link rel="icon" type="image/x-icon" href="./source/static/images/favico.ico"/>
 </head>
 <body>
+    <nav class="navbar">
+        <ul>
+          <li>ABOUT</li>
+          <li id="search-nav">SEARCH</li>
+          <li id="dashboard-nav">PINNED</li>
+          <li>LOGIN</li>
+          <li>SIGN UP</li>
+
+        </ul>
+    </nav>
     <div id="search-section">
-        <h2 class="header2">FIND SSBU PLAYER INFO</h2>
+        <h2 class="header2">FIND PLAYER INFO</h2>
         <form autocomplete="off" id="player-search-form">
                 <div id="autocomplete">
-                    <input type="text" id="playerTag" placeholder="Player Tag" name="playerTag">
+                    <input type="text" id="playerTag" placeholder="Search Player" name="playerTag">
                 </div>
                 <br>  
                 <input type="submit" id="player-search-form-submission" name="player-search-form-submission" value="Search">
         </form>
 
-        <div id="player-tourney-data"></div>
+        <div id="player-search-card"></div>
         <br>
     </div>
-    <hr>
-    <br>
-    <h2 class="header2">DASHBOARD</h1>
+    <br id="dashboard-nav-pos">
+    <br> 
+    <h2 id="dashboard-section" class="header2">PINNED PLAYERS</h1>
     <div id="card-container">
     </div>
 </body>
