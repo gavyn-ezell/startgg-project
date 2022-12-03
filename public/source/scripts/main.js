@@ -5,11 +5,130 @@ import players from './players.json' assert {type: 'json'};
 window.addEventListener("DOMContentLoaded", init);
 
 function init() {
-  
+  setupNavBar();
+  loadPlayerCards();
   initFormHandler();
   let input = document.getElementById("playerTag")
-  autocomplete(input,Object.keys(players));
+  autocomplete(input, Object.keys(players));
 }
+
+function setupNavBar() {
+  let search = document.getElementById("search-nav");
+  search.addEventListener("click", ()=>{
+    document.getElementById("search-section").scrollIntoView({behavior:"smooth"});
+  })
+  let dashBoard = document.getElementById("dashboard-nav");
+  dashBoard.addEventListener("click", ()=>{
+    document.getElementById("dashboard-nav-pos").scrollIntoView({behavior:"smooth"});
+  })
+}
+/*
+/*
+* Loading the page with player cards of players who were
+* pinned by user (aka saved in storage!)
+*
+*/
+async function loadPlayerCards() {
+  let flexbox = document.getElementById("card-container");
+  let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+  if (!(pinnedPlayers)) {
+    localStorage.setItem("pinnedPlayers", JSON.stringify([]));
+    return;
+  }
+  else {
+    //load each player card
+    for (let i in pinnedPlayers) {
+      //make request and make object
+      let playerCardObject = await makePlayerCardData(pinnedPlayers[i]);
+      
+      //create custom player card
+      let playerCard = document.createElement('player-card')
+      playerCard.data = playerCardObject;
+      //add player card to flexbox
+      flexbox.append(playerCard);
+    }
+  }
+}
+
+/**
+ * Given a playerId, grab the the necessary player card data, and put inside object for
+ * the custom PlayerCard element
+ * @param  {String} A player's StartGG gamerTag
+ * @returns {Object} Object with player data
+ */
+async function makePlayerCardData(playerTag) {
+  let playerId = players[playerTag];
+  let result = {}
+  let options = {
+    "method": "POST"
+  }
+  let fetch_result = await fetch(`/player?playerId=${playerId}`, options);
+  fetch_result = await fetch_result.json();
+  //name, id
+  result["playerTag"] = playerTag;
+  result["playerId"] = playerId;
+  //profile pic, twitch, twitter
+  result["pic"] = fetch_result.data.player.user.images[0].url;
+  
+    
+  //getting only twitch and twitter if they exist
+  let socials = fetch_result.data.player.user.authorizations;
+  result["twitchUrl"] = null;
+  result["twitchUrl"] = null;
+  for (let i in socials) {
+    if (socials[i].type == 'TWITTER') {
+      if (socials[i].url) {
+        result["twitterUrl"] = socials[i].url;
+      }
+    }
+    else if (socials[i].type = 'TWITCH') {
+      if (socials[i].url) {
+        result["twitchUrl"] = socials[i].url;
+      }
+    }
+  }
+
+  //upcoming tournies
+  result["upcoming"] = [];
+  let tournies = fetch_result.data.player.user.tournaments.nodes;
+  let upcomingTournies = []
+  
+  //we wanna grab tournies from now to later, for later organizing
+  for (let i = 0; i < tournies.length; i++) {
+
+    if (tournies[i.toString()].startAt >= Math.floor(Date.now() / 1000)) {
+      upcomingTournies.push(tournies[i]);
+    }
+  }
+
+  while (upcomingTournies.length != 0) {
+    let currTourney = upcomingTournies.pop();
+    //grabbing date for display
+    let currTimestamp = currTourney['startAt'] * 1000;
+    const dateObject = new Date(currTimestamp);
+
+    
+    let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+    result["upcoming"].push(`${currTourney['name']}: ${currDate}`);
+
+  }
+
+  //recent standings
+  result["recent"] = []
+  //placings is an array of objects
+  let placings = fetch_result.data.player.recentStandings;
+  for (let i in placings) {
+    let name = placings[i].entrant.event.tournament.name; 
+    let eventName = placings[i].entrant.event.name;
+    let attendance = placings[i].entrant.event.numEntrants;
+    let placing = placings[i].placement
+    
+    result["recent"].push(`${name}: ${placing}/${attendance} in ${eventName}`);
+  }
+  return result;
+
+}
+
 
 /*
 * Setting up the form functionality
@@ -22,11 +141,12 @@ function initFormHandler() {
   theForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    //clearing current player-tourney data being displayed
-    let data = document.getElementById("player-tourney-data");
-    document.getElementById("player-search-form-submission").setAttribute("disabled", true);
-    while (data.hasChildNodes()) {
-      data.removeChild(data.firstChild);
+    
+
+    //clearing before each search
+    let searchDiv = document.getElementById("player-search-card");
+    while (searchDiv.hasChildNodes()) {
+      searchDiv.removeChild(searchDiv.firstChild);
     }
     
     //grabbing inputted tag
@@ -37,130 +157,20 @@ function initFormHandler() {
     if (!(playerTag in players)) {
       let dataMsg = document.createElement('h1');
       dataMsg.innerText = `PLAYER NOT FOUND`;
-      data.append(dataMsg);
+      data.insertAdjacentElement("beforebegin", dataMsg);
       document.getElementById("player-search-form-submission").removeAttribute("disabled");
       return;
     }
 
-    
-    //setting up player card info, 'playerTag'
-    let playerId = players[playerTag];
-    let tagHeader = document.createElement("h1");
-    tagHeader.innerText = playerTag;
-    data.append(tagHeader);
+    //NEW METHOD USING CUSTOM PLAYER CARD
+    let playerCardObject = await makePlayerCardData(playerTag);
+    playerCardObject["needPlus"] = !(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag));
+    let playerSearchCard = document.createElement('player-card')
+    playerSearchCard.data = playerCardObject;
+    searchDiv.append(playerSearchCard);
 
-    //finally grabbing data for player
-    let result = await fetch(`/player?playerId=${playerId}`);
-    result  = await result.json();
-    
-    //first, grabbing pfp 
-    let imgUrl = result.data.player.user.images[0].url;
-    let imgTag = document.createElement("img");
-    imgTag.setAttribute("src", imgUrl);
-    imgTag.setAttribute("alt", playerTag);
-    imgTag.setAttribute("class", "pfp");
-    data.append(imgTag)
-    data.append(document.createElement("br"));
 
-    //second, grabbing socials
-    let socials = result.data.player.user.authorizations;
-    let validSocials = {}
-    
-    //getting only twitch and twitter if they exist
-    for (let i in socials) {
-      if (socials[i].type == 'TWITTER') {
-        if (socials[i].url) {
-          validSocials['TWITTER'] = socials[i].url;
-        }
-      }
-      else if (socials[i].type = 'TWITCH') {
-        if (socials[i].url) {
-          validSocials['TWITCH'] = socials[i].url;
-        }
-      }
-    }
-    
-    //then we keep order consistent: Twitch, then twitter 
-    let socialsOrder = Object.keys(validSocials).sort();
-    for (let i in socialsOrder) {
-      if (socialsOrder[i] == 'TWITTER') {
-        let aTag = document.createElement("a");
-        aTag.setAttribute("href", validSocials["TWITTER"]);
-        let twitterImg = document.createElement("img");
-        twitterImg.setAttribute("src", "source/static/images/twt.png");
-        twitterImg.setAttribute("alt", "twitter");
-        twitterImg.setAttribute("class", "socials");
-        aTag.append(twitterImg)
-        data.append(aTag);
-      }
-      else {
-        let twitchImg = document.createElement("img");
-        twitchImg.setAttribute("src", "source/static/images/twitch.png");
-        twitchImg.setAttribute("alt", "twitch")
-        twitchImg.setAttribute("class", "socials");
-        
-        let aTag = document.createElement("a");
-        aTag.setAttribute("href", validSocials["TWITCH"]);
-        aTag.append(twitchImg)
-        data.append(aTag);
-      }
-    }
-    
-    //third, grabbing upcoming tournies
-    let tournies = result.data.player.user.tournaments.nodes;
-    let upcomingTournies = []
-    
-    //we wanna grab tournies from now to later, for later organizing
-    for (let i = 0; i < tournies.length; i++) {
-
-      if (tournies[i.toString()].startAt >= Math.floor(Date.now() / 1000)) {
-        upcomingTournies.push(tournies[i]);
-      }
-    }
-    
-    
-    //are there any upcoming tournies!?
-    let upcomingMsg = document.createElement('h2');
-    if (upcomingTournies.length == 0) {
-      upcomingMsg.innerText = `No Upcoming Tournies`;
-      data.append(upcomingMsg);
-    }
-    else {
-      upcomingMsg.innerText = `Upcoming Tournies`;
-      data.append(upcomingMsg);
-      while (upcomingTournies.length != 0) {
-        let currP = document.createElement('p');
-        let currTourney = upcomingTournies.pop();
-        //grabbing date for display
-        let currTimestamp = currTourney['startAt'] * 1000;
-        const dateObject = new Date(currTimestamp);
-
-        
-        let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
-        currP.innerText = `${currTourney['name']}: ${currDate}`;
-        data.append(currP);
-      }
-    }
-
-    //fourth, we want to grab recent standings
-    let recentMsg = document.createElement('h2');
-    recentMsg.innerText = `Recent Placements`;
-    data.append(recentMsg);
-
-    //placings is an array of objects
-    let placings = result.data.player.recentStandings;
-    for (let i in placings) {
-      let currPlacing = document.createElement('p')
-      let name = placings[i].entrant.event.tournament.name; 
-      let eventName = placings[i].entrant.event.name;
-      let attendance = placings[i].entrant.event.numEntrants;
-      let placing = placings[i].placement
-      
-      currPlacing.innerText = `${name}: ${placing}/${attendance} in ${eventName}`;
-      data.append(currPlacing)
-    }
-    
-    document.getElementById("player-search-form-submission").removeAttribute("disabled");
+  
   });
 }
 
