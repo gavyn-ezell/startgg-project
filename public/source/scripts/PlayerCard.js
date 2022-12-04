@@ -23,21 +23,8 @@ class PlayerCard extends HTMLElement {
             transform: translateX(-50%);
             padding: 30px;
             margin-top: 10px;
-            height: 500px;
+            height: 550px;
             width: 400px;
-        }
-        .plus {
-            width:50px;
-            height:60px;
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            left: auto;
-            z-index: 100;
-        }
-
-        .plus:hover {
-            transform: scale(1.24);
         }
         .player-card > .pfp {
             border: 1px solid white;
@@ -63,6 +50,28 @@ class PlayerCard extends HTMLElement {
         .player-card > p {
             font-size: 12px;
         }
+
+
+        input[type=submit] {
+            border: 1px solid transparent;
+            background-color: grey;
+            border-radius: 2px;
+            position: relative;
+            left: 50%;
+            font-size: 12px;
+            width: 50px;
+            transform: translateX(-50%);
+        }
+        input[type=submit]:hover:not(.unpin){
+            background-color: #3ad389;
+        }
+        
+        .unpin:hover {
+            background-color: #EE506A;
+        }
+        input[type=submit]:active {
+            background-color: grey;
+        }
         `;
         //final shadow DOM setup
         let cardDiv = document.createElement('div');
@@ -81,8 +90,8 @@ class PlayerCard extends HTMLElement {
    * The data to pass into the <player-card>, must be of the
    *                        following format:
    *                        {
-   *                          "needPlus : bool,
-   *                          "needMinus": bool,
+   *                          "needPin : bool,
+   *                          "needRemove": bool,
    *                          "playerTag": "string",
    *                          "playerId": "string",
    *                          "pic": "string",
@@ -106,21 +115,53 @@ class PlayerCard extends HTMLElement {
     * 
     *  Plus sign should only show up if player isn't already pinned
     */
-    if (data["needPlus"]) {
-        let plusBtn = document.createElement("img");
-        plusBtn.setAttribute("src","source/static/images/plus.png");
-        plusBtn.setAttribute("alt","plus");
-        plusBtn.setAttribute("class","plus");
-        plusBtn.addEventListener("click", ()=> {
-            if(confirm("Add player to dashboard?")) {
-                let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
-                pinnedPlayers.push(data["playerTag"]);
-                localStorage.setItem("pinnedPlayers", JSON.stringify(pinnedPlayers));
-                location.reload();
-            }
-        });
-        divEl.append(plusBtn);
+    if (data["needPin"]) {
+       let pinBtn = document.createElement("input");
+       pinBtn.setAttribute("type", "submit");
+       pinBtn.setAttribute("value", "PIN");
+
+       pinBtn.addEventListener("click", ()=> {
+        if(confirm("Add player to dashboard?")) {
+            let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+            pinnedPlayers.push(data["playerTag"]);
+            localStorage.setItem("pinnedPlayers", JSON.stringify(pinnedPlayers));
+            location.reload();
+
+            document.getElementById("dashboard-nav").click();
+
+        }
+    });
+    
+       divEl.append(pinBtn);
     }
+    /**
+    *  Dealing with plus button for player-cards loaded by 
+    *  user's search
+    * 
+    *  Plus sign should only show up if player isn't already pinned
+    */
+    if (data["needRemove"]) {
+        let removeBtn = document.createElement("input");
+        removeBtn.setAttribute("type", "submit");
+        removeBtn.setAttribute("value", "UNPIN");
+        removeBtn.setAttribute("class", "unpin");
+ 
+        removeBtn.addEventListener("click", ()=> {
+         if(confirm("Remove player from dashboard?")) {
+             let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+             for (let i in pinnedPlayers) {
+                if (pinnedPlayers[i] == data["playerTag"]) {
+                    pinnedPlayers.splice(i,1);
+                }
+             }
+             localStorage.setItem("pinnedPlayers", JSON.stringify(pinnedPlayers));
+             location.reload();
+             document.getElementById("dashboard-nav").click();
+         }
+     });
+     
+        divEl.append(removeBtn);
+     }
 
     //setting up player's name at top of card
     let playerTag = document.createElement("h1");

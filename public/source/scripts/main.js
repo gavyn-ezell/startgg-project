@@ -11,6 +11,7 @@ window.addEventListener("DOMContentLoaded", init);
 *
 */
 function init() {
+  window.scrollTo(0, 0);
   setupNavBar();
   loadPlayerCards();
   initFormHandler();
@@ -58,6 +59,7 @@ async function loadPlayerCards() {
       
       //create custom player card
       let playerCard = document.createElement('player-card')
+      playerCardObject["needRemove"] = true;
       playerCard.data = playerCardObject;
       //add player card to flexbox
       flexbox.append(playerCard);
@@ -184,7 +186,7 @@ function initFormHandler() {
 
     //making player card and adding to dashboard container
     let playerCardObject = await makePlayerCardData(playerTag);
-    playerCardObject["needPlus"] = !(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag));
+    playerCardObject["needPin"] = !(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag));
     let playerSearchCard = document.createElement('player-card')
     playerSearchCard.data = playerCardObject;
     searchDiv.append(playerSearchCard);
