@@ -1,10 +1,17 @@
-//using created players db
+//using db for playerTag's associated playerId (within Startgg)
 import players from './players.json' assert {type: 'json'};
 
-//form initialization for player ID input
+//setting up site on load
 window.addEventListener("DOMContentLoaded", init);
 
+
+/*
+* Init function calls necessary functions for proper
+* site setup and functionality (client side)
+*
+*/
 function init() {
+  window.scrollTo(0, 0);
   setupNavBar();
   loadPlayerCards();
   initFormHandler();
@@ -12,6 +19,11 @@ function init() {
   autocomplete(input, Object.keys(players));
 }
 
+/*
+* Setups up navbar for proper scrolling and navigation
+* throughout the website
+*
+*/
 function setupNavBar() {
   let search = document.getElementById("search-nav");
   search.addEventListener("click", ()=>{
@@ -22,15 +34,19 @@ function setupNavBar() {
     document.getElementById("dashboard-nav-pos").scrollIntoView({behavior:"smooth"});
   })
 }
-/*
+
 /*
 * Loading the page with player cards of players who were
-* pinned by user (aka saved in storage!)
+* previosuly pinned/saved by user
 *
+* TODO: Not use local storage, backend/server, user-specific integration
 */
 async function loadPlayerCards() {
+  //grabbing reference to flexbox for player cards and players that we have to load
   let flexbox = document.getElementById("card-container");
   let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+  
+  //loading localStorage key if first time on site
   if (!(pinnedPlayers)) {
     localStorage.setItem("pinnedPlayers", JSON.stringify([]));
     return;
@@ -43,6 +59,7 @@ async function loadPlayerCards() {
       
       //create custom player card
       let playerCard = document.createElement('player-card')
+      playerCardObject["needRemove"] = true;
       playerCard.data = playerCardObject;
       //add player card to flexbox
       flexbox.append(playerCard);
@@ -51,12 +68,14 @@ async function loadPlayerCards() {
 }
 
 /**
- * Given a playerId, grab the the necessary player card data, and put inside object for
- * the custom PlayerCard element
- * @param  {String} A player's StartGG gamerTag
- * @returns {Object} Object with player data
- */
+ * Given a playerTag, grab the the necessary player card data, and creating object
+ * for setting up the custom PlayerCard element for dashboard
+ * 
+ * param - playerTag: String
+*/
 async function makePlayerCardData(playerTag) {
+  
+  //setting up and making request for player's data
   let playerId = players[playerTag];
   let result = {}
   let options = {
@@ -64,17 +83,19 @@ async function makePlayerCardData(playerTag) {
   }
   let fetch_result = await fetch(`/player?playerId=${playerId}`, options);
   fetch_result = await fetch_result.json();
-  //name, id
+  
+  //starts creating Object for custom player card
+  
+  //FIRST: Name, ID, Profile Picture
   result["playerTag"] = playerTag;
   result["playerId"] = playerId;
-  //profile pic, twitch, twitter
   result["pic"] = fetch_result.data.player.user.images[0].url;
   
     
-  //getting only twitch and twitter if they exist
+  //SECOND: Player linked socials (Twitch, Twitter)
   let socials = fetch_result.data.player.user.authorizations;
   result["twitchUrl"] = null;
-  result["twitchUrl"] = null;
+  result["twitterUrl"] = null;
   for (let i in socials) {
     if (socials[i].type == 'TWITTER') {
       if (socials[i].url) {
@@ -88,12 +109,12 @@ async function makePlayerCardData(playerTag) {
     }
   }
 
-  //upcoming tournies
+  //THIRD: Upcoming Tournaments for player
   result["upcoming"] = [];
   let tournies = fetch_result.data.player.user.tournaments.nodes;
   let upcomingTournies = []
   
-  //we wanna grab tournies from now to later, for later organizing
+  //we wanna grab tournies with TIMESTAMPS > currTIMESTAMP
   for (let i = 0; i < tournies.length; i++) {
 
     if (tournies[i.toString()].startAt >= Math.floor(Date.now() / 1000)) {
@@ -104,39 +125,40 @@ async function makePlayerCardData(playerTag) {
   while (upcomingTournies.length != 0) {
     let currTourney = upcomingTournies.pop();
     //grabbing date for display
-    let currTimestamp = currTourney['startAt'] * 1000;
-    const dateObject = new Date(currTimestamp);
+    let tourneyTimestamp = currTourney['startAt'] * 1000;
+    const dateObject = new Date(tourneyTimestamp);
 
-    
-    let currDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
-    result["upcoming"].push(`${currTourney['name']}: ${currDate}`);
+    //formatting string used for tourney info
+    let tourneyDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+    result["upcoming"].push(`${currTourney['name']}: ${tourneyDate}`);
 
   }
 
-  //recent standings
+  //FOURTH: Recent Placements from Player
+  
   result["recent"] = []
+  
   //placings is an array of objects
   let placings = fetch_result.data.player.recentStandings;
   for (let i in placings) {
+    //grabbing necessary data and formatting
     let name = placings[i].entrant.event.tournament.name; 
     let eventName = placings[i].entrant.event.name;
     let attendance = placings[i].entrant.event.numEntrants;
     let placing = placings[i].placement
-    
     result["recent"].push(`${name}: ${placing}/${attendance} in ${eventName}`);
   }
-  return result;
 
+  return result;
 }
 
 
 /*
 * Setting up the form functionality
-* Form is just the field for user to input their player tag for searching
 *
 */
 function initFormHandler() {
-  //Grab the user inputted ID from the form submission box and make request
+  //Grab the user inputted ID from the form submission box and create player card
   let theForm = document.querySelector('form');
   theForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -153,7 +175,7 @@ function initFormHandler() {
     let formData = new FormData(theForm); 
     let playerTag = formData.get('playerTag');
     
-    //checking if tag in our DB
+    //checking if tag in our DB, if not, don't make the card
     if (!(playerTag in players)) {
       let dataMsg = document.createElement('h1');
       dataMsg.innerText = `PLAYER NOT FOUND`;
@@ -162,21 +184,18 @@ function initFormHandler() {
       return;
     }
 
-    //NEW METHOD USING CUSTOM PLAYER CARD
+    //making player card and adding to dashboard container
     let playerCardObject = await makePlayerCardData(playerTag);
-    playerCardObject["needPlus"] = !(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag));
+    playerCardObject["needPin"] = !(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag));
     let playerSearchCard = document.createElement('player-card')
     playerSearchCard.data = playerCardObject;
     searchDiv.append(playerSearchCard);
-
-
-  
   });
 }
 
 /*
 *
-* Function for autocomplete, taken from:
+* Function for autocomplete in search bar, taken from:
 * https://www.w3schools.com/howto/howto_js_autocomplete.asp
 *
 */

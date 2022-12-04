@@ -3,6 +3,7 @@ body {
     font-family: 'Heebo', sans-serif;
     color: whitesmoke;
 }
+/* Sticky Navbar */
 .navbar {
     position: fixed;
     top: 0;
@@ -41,6 +42,7 @@ body {
     cursor: pointer;
 }
 
+/* Search Area: Searched card, and search field */
 #search-section {
     padding-top: 40px;
     height: 100vh;
@@ -54,13 +56,15 @@ body {
     z-index: 95;
     
 }
-.header2 {
+/* Specific Section titles/headers */
+.area-headers {
     position: relative;
     text-align: center;
     font-size: 3vmax;
     left: 50%;
     transform: translateX(-50%);
 }
+
 input {
     border: 1px solid transparent;
     background-color: #f1f1f1;
@@ -69,12 +73,13 @@ input {
     font-size: 16px;
 }
 
+/* Search Field */
 input[type=text] {
     background-color: #f1f1f1;
     width: 100%;
 }
 
-
+/* Submit Button */
 input[type=submit] {
     background-color: grey;
     color: #fff;
@@ -90,6 +95,7 @@ input[type=submit]:active {
     background-color: grey;
 }
 
+/* Styling for autocomplete functionality */
 .autocomplete-items {
     color: #222222;
     position: absolute;
@@ -115,83 +121,10 @@ input[type=submit]:active {
     background-color: dodgerblue;
 }
 
-#player-tourney-data {
-    visibility: visible;
-    border: 3px solid gray;
-    border-radius: 7px;
-    text-align: center;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 20px;
-    margin-top: 10px;
-    height: 70vh;
-    width: 400px;
-}
-
-#player-tourney-data:empty {
-    visibility: hidden;
-}
-
-#player-tourney-data > p {
-    font-size: 12px;
-}
-
-#player-tourney-data > h2 {
-    text-decoration: underline;
-}
-
-.pfp {
-    border: 1px solid white;
-    border-radius:50% 50% 50% 50%; 
-    width:125px;
-    height:125px;
-    margin: auto;
-}
-
-.socials {
-    width: 25px;
-    height: 25px;
-    margin-top: 7px;
-    margin-right: 5px;
-    margin-left: 5px;
-}
-
-.socials:hover {
-    transform: scale(1.1);
-}
-
-.plus {
-    width:30px;
-    height:30px;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    left: auto;
-    z-index: 100;
-}
-
-.pin:hover {
-    cursor: pointer;
-}
-
+/* Dashboard Container (grid) */
 #card-container {
     display: grid;
     justify-content: space-evenly;
     grid-template-columns: auto auto;
     grid-gap: 10px;
 }
-
-.player-card {
-    visibility: visible;
-    border: 3px solid gray;
-    border-radius: 7px;
-    text-align: center;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 40px;
-    margin-top: 10px;
-    width: 300px;
-}
-

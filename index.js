@@ -1,25 +1,29 @@
-//setting up express app
+//Setting up Express app
 const fetch = require('node-fetch');
 const express = require('express');
 const app = express();
+
 require('dotenv').config();
-
 app.use(express.static('public'))
-
 app.listen(3000, () => console.log('Express App Listening at: 3000'));
 
-//request for getting a player's information through the startgg api
+/* 
+* Server side POST request for grabbing a player's player card data 
+*/
 app.post('/player', async (request, response) => {
     const player_query = await query_playercard_info(request.query.playerId);
-    response.json(player_query);
-
+    return response.json(player_query);
 });
 
 
-/*
-*  One giant query that gets player's recent placements, upcoming tournies, and socials
-*
-*/
+/**
+ * Given a playerId, grab the the necessary player card data using
+ * Start.gg API. Uses GraphQL Query.
+ * 
+ * params playerId: String
+ * 
+ * returns: result: Object
+ */
 async function query_playercard_info(playerId) {
 
     //setting up the query string
@@ -57,17 +61,14 @@ async function query_playercard_info(playerId) {
             type
             url
           }
-          images {
-            height
+          images (type: "profile") {
             url
-            width
-            type
           }
         }
       }
     }
     `;
-    //using query string for proper api request
+    //using query string for proper request for data
     let result = await fetch('https://api.start.gg/gql/alpha', {
               method: 'POST',
               headers: {
