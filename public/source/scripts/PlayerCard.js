@@ -4,7 +4,9 @@ class PlayerCard extends HTMLElement {
     constructor() {
         super();
 
+        //setting up shadow DOM
         let shadowEl = this.attachShadow({mode:'open'});
+        //styling for player cards
         let styleEl = document.createElement("style")
         styleEl.textContent = `
         * {
@@ -62,18 +64,21 @@ class PlayerCard extends HTMLElement {
             font-size: 12px;
         }
         `;
-
+        //final shadow DOM setup
         let cardDiv = document.createElement('div');
         cardDiv.setAttribute("class", "player-card");
         cardDiv.append(styleEl);
         shadowEl.append(cardDiv);
         this.shadowEl = shadowEl;
     }
+   
    /**
    * Called when the .data property is set on this element.
    *
    *
-   * @param {Object} data - The data to pass into the <recipe-card>, must be of the
+   * param - data: Obejct
+   * 
+   * The data to pass into the <player-card>, must be of the
    *                        following format:
    *                        {
    *                          "needPlus : bool,
@@ -87,14 +92,20 @@ class PlayerCard extends HTMLElement {
    *                          "recent": string array
    *                        }
    */
-  set data(data) {
+   set data(data) {
     if (!data) {
         return;
     }
+    
     //grab div then populate afterwards
     let divEl = this.shadowEl.querySelector('div');
     
-    //dealing with plus button
+    /**
+    *  Dealing with plus button for player-cards loaded by 
+    *  user's search
+    * 
+    *  Plus sign should only show up if player isn't already pinned
+    */
     if (data["needPlus"]) {
         let plusBtn = document.createElement("img");
         plusBtn.setAttribute("src","source/static/images/plus.png");
@@ -116,7 +127,7 @@ class PlayerCard extends HTMLElement {
     playerTag.innerText = data["playerTag"];
     divEl.append(playerTag);
 
-    //setting up the images (profile pic, twitch and twitter if they exist)
+    //setting up the player's PFP
     let pic = document.createElement("img");
     pic.setAttribute("src", data["pic"]);
     pic.setAttribute("alt", data["playerTag"]);
@@ -125,7 +136,7 @@ class PlayerCard extends HTMLElement {
     let br = document.createElement("br");
     divEl.append(br);
 
-
+    //setting up socials respective socials buttons if exits
     if (data["twitchUrl"]) {
         let twitchBtn = document.createElement("a");
         twitchBtn.setAttribute("href", data["twitchUrl"]);
@@ -175,7 +186,6 @@ class PlayerCard extends HTMLElement {
     let recentMsg = document.createElement("h2");
     let recentStandings = data["recent"];
     if (recentStandings.length == 0) {
-        //we just want to say no recent placements
         recentMsg.innerText = "No Recent Placements";
         divEl.append(recentMsg);
     }
