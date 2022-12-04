@@ -57,7 +57,7 @@ async function query_playercard_info(playerId) {
             type
             url
           }
-          images {
+          images (type: "profile") {
             height
             url
             width
