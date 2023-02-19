@@ -1,10 +1,16 @@
+<!DOCTYPE html>
+<html>
 <h1>REGISTER</h1>
-<form action="/register" method="POST">
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username"><br>
+<form class="form" method="POST" action="/user/register">
+    <label for="email">Email</label>
+    <input type="text" id="email" name="email"><br>
     
     <label for="password">Password</label>
     <input type="password" id="password" name="password"><br>
 
+    <label for="cpassword">Confirm Password</label>
+    <input type="password" id="cpassword" name="cpassword"><br>
+
     <button type="submit">Register</button>
 </form>
+</html>
