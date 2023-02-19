@@ -13,8 +13,3 @@ such as recent results, and upcoming tournaments. Users can then set up a notifi
 
 > :warning: **Still a work in progress**: Functionality still in progress, more to come!
 
-**TODO Features and Functionality**
-- Build out backend/server side functionality
-  - User Management System (MOVE AWAY FROM LOCAL STORAGE :-1:)
-  - Enable notifications for pinned players' upcoming tournies, upcoming sets and scores, streamed sets
-- Enhance current database for Player Tags and associated Start.gg ID number
