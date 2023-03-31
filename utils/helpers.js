@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 require('dotenv').config();
+
 /**
  * Given a playerId, grab the the necessary player card data using
  * Start.gg API. Uses GraphQL Query.
@@ -74,4 +75,4 @@ async function query_playercard_info(playerId) {
           });
     return result;
 }
-module.exports.query_playercard_info = query_playercard_info
+module.exports.query_playercard_info = query_playercard_info;

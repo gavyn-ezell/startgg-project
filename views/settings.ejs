@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <h1>HELLO!!</h1>
+    <ul>
+        <h2>your info</h2>
+        <b>EMAIL: </b> <%= email %> 
+        <br>
+         <% if (phone_number == null) { %>
+            <p> <button>ADD PHONE NUMBER</button></p>
+        <%} else { %>
+        <p> <%= phone_number %> </p>
+        <% } %>
+    </ul>      
+    <a href="/user/logout">LOG OUT</a>
+</body>
+</html>

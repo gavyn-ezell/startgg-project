@@ -1,5 +1,4 @@
 //PlayerCard.js
-
 class PlayerCard extends HTMLElement {
     constructor() {
         super();
@@ -23,7 +22,7 @@ class PlayerCard extends HTMLElement {
             transform: translateX(-50%);
             padding: 30px;
             margin-top: 10px;
-            height: 550px;
+            height: auto;
             width: 400px;
         }
         .player-card > .pfp {
@@ -147,18 +146,18 @@ class PlayerCard extends HTMLElement {
         removeBtn.setAttribute("class", "unpin");
  
         removeBtn.addEventListener("click", ()=> {
-         if(confirm("Remove player from dashboard?")) {
-             let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
-             for (let i in pinnedPlayers) {
-                if (pinnedPlayers[i] == data["playerTag"]) {
-                    pinnedPlayers.splice(i,1);
+            if(confirm("Remove player from dashboard?")) {
+                let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+                for (let i in pinnedPlayers) {
+                   if (pinnedPlayers[i] == data["playerTag"]) {
+                       pinnedPlayers.splice(i,1);
+                   }
                 }
-             }
-             localStorage.setItem("pinnedPlayers", JSON.stringify(pinnedPlayers));
-             location.reload();
-             document.getElementById("dashboard-nav").click();
-         }
-     });
+                localStorage.setItem("pinnedPlayers", JSON.stringify(pinnedPlayers));
+                location.reload();
+                document.getElementById("dashboard-nav").click();
+            }
+        });
      
         divEl.append(removeBtn);
      }
@@ -182,7 +181,7 @@ class PlayerCard extends HTMLElement {
         let twitchBtn = document.createElement("a");
         twitchBtn.setAttribute("href", data["twitchUrl"]);
         let twitchImg = document.createElement("img");
-        twitchImg.setAttribute("src", "./source/static/images/twitch.png");
+        twitchImg.setAttribute("src", "/source/static/images/twitch.png");
         twitchImg.setAttribute("alt", "TWITCH");
         twitchImg.setAttribute("class", "socials");
         twitchBtn.append(twitchImg);
@@ -196,7 +195,7 @@ class PlayerCard extends HTMLElement {
         twitterBtn.setAttribute("href", data["twitterUrl"]);
 
         let twitterImg = document.createElement("img");
-        twitterImg.setAttribute("src", "./source/static/images/twt.png");
+        twitterImg.setAttribute("src", "/source/static/images/twt.png");
         twitterImg.setAttribute("alt", "TWITTER");
         twitterImg.setAttribute("class", "socials");
         twitterBtn.append(twitterImg);

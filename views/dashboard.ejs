@@ -3,25 +3,30 @@
 <head>
     <title>SSBU Player Info</title>
     
-    <!--Enabling Custom Player Card Element-->
-    <script src="source/scripts/guest/PlayerCard.js" type="module"></script>
+    <!--Functionality-->
+    <script src="/source/scripts/loggedin/PlayerCardLogged.js" type="module"></script>
     
     <!--Main Stylesheets and Scripts-->
-    <link rel="stylesheet" href="./source/static/main.css">
-    <script type="module" src="./source/scripts/guest/main.js"></script>
+    <link rel="stylesheet" href="/source/static/main.css">
+    <script type="module" src="/source/scripts/loggedin/dashboard.js" defer></script>
+    <script type="module">
+        import { makePlayerCardData, loadPlayerCards, initFormHandler } from '/source/scripts/loggedin/dashboard.js';
+        const playersMonitored = <%- JSON.stringify(monitoredList) %>;
+        initFormHandler(playersMonitored);
+        loadPlayerCards(playersMonitored);          
+    </script>
+      
 
     <!--FAVICO-->
-    <link rel="icon" type="image/x-icon" href="./source/static/images/favico.ico"/>
+    <link rel="icon" type="image/x-icon" href="/source/static/images/favico.ico"/>
 </head>
 <body>
     <!--Sticky Navigation Bar-->
     <nav class="navbar">
         <ul>
-        <li id="search-nav">ABOUT</li>
           <li id="search-nav">SEARCH</li>
           <li id="dashboard-nav">PINNED</li>
-          <li><a href="/user/login">LOGIN</a></li>
-          <li><a href="/user/register">REGISTER</a></li>
+          <li><a href="/user/settings">SETTINGS</a></li>
         </ul>
     </nav>
     <!--Search Area for Player Info-->
@@ -48,6 +53,7 @@
     <br>
     <!--User's Player Dashboard-->
     <h2 id="dashboard-section" class="area-headers">PINNED PLAYERS</h2>
+    
     <div id="card-container">
     </div>
 </body>
