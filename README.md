@@ -4,7 +4,7 @@
 
 Site/dashboard for avid SSBU tournament watchers and fans.
 Allows fans to have a personalized dashboard, showing card summaries of their favorite players, with information
-such as recent results, and upcoming tournaments. Users can then set up a notification system for current players on their dashboard, where they are notified when an upcoming tournament with that respective player starts.
+such as recent results, and upcoming tournaments
 
-> :warning: **Still a work in progress**: Functionality still in progress, more to come!
-
+> :wrench: **Upcoming Feature** 
+> 1. Notification System for you favorite players
