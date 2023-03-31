@@ -72,6 +72,9 @@ async function makePlayerCardData(playerTag) {
     "method": "POST"
   }
   let fetch_result = await fetch(`/player?playerId=${playerId}`, options);
+  if (fetch_result==null) {
+    return;
+  }
   fetch_result = await fetch_result.json();
   
   //starts creating Object for custom player card

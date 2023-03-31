@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="/source/static/logreg.css">
+</head>
+<body>
 <h1>REGISTER</h1>
-<form class="form" method="POST" action="/user/register">
-    <label for="email">Email</label>
-    <input type="text" id="email" name="email"><br>
-    
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password"><br>
+    <form class="form" method="POST" action="/user/register">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email"><br>
+        
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"><br>
 
-    <label for="cpassword">Confirm Password</label>
-    <input type="password" id="cpassword" name="cpassword"><br>
+        <label for="cpassword">Confirm Password</label>
+        <input type="password" id="cpassword" name="cpassword"><br>
 
-    <button type="submit">Register</button>
-</form>
+        <button type="submit">Register</button>
+    </form>
+</body>
 </html>

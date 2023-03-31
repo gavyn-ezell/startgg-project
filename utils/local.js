@@ -21,7 +21,7 @@ passport.use(new localStrategy({
     passwordField: 'password'
   }, async function(email, password, done) {
     databaseHelpers.verifyLogin(email, password).then(userID => {
-      if (!userID) {
+      if (userID == null) {
         return done(null, false, { message: 'Invalid email or password' });
       }
       return done(null, userID);

@@ -58,7 +58,10 @@ const verifyLogin = async function(email, rawPassword) {
         const emailQuery = await pool.execute("SELECT * from user WHERE email = ?", [email])
         if (emailQuery[0].length == 1) { 
             const passwordMatch = await bcrypt.compare(rawPassword, emailQuery[0][0].password)
-            return Promise.resolve(emailQuery[0][0].uID);
+            if (passwordMatch) {
+                return Promise.resolve(emailQuery[0][0].uID);
+            }
+            return Promise.resolve(null); 
         }
         else {
             return Promise.resolve(null); 

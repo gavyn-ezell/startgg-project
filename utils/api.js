@@ -69,10 +69,19 @@ async function query_playercard_info(playerId) {
               })
   
           }).then(response => {
+              if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+              }
               return response.json();
           }).then(data => {
               return data;
+          }).catch(error => {
+            console.error('Error:', error);
+            throw error;
           });
+    if (result.error) {
+      console.error('Error:', result.error);
+    }
     return result;
 }
 module.exports.query_playercard_info = query_playercard_info;

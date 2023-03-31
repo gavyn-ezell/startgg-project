@@ -1,5 +1,4 @@
 //SETTING UP OUR NODE APP DEPENDENCIES
-const fetch = require('node-fetch');
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -8,7 +7,7 @@ const app = express();
 require('dotenv').config();
 const authRoute = require('./routes/auth');
 const loggedRoute = require('./routes/logged');
-const helpers = require('./utils/helpers');
+const api = require('./utils/api');
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false}));
 app.use(express.static(__dirname + '/public'));
@@ -45,6 +44,6 @@ app.use('/user', loggedRoute);
 
 //post request for grabbing a startgg User's information, using STARTGG API
 app.post('/player', async (request, response) => {
-    const player_query = await helpers.query_playercard_info(request.query.playerId);
+    const player_query = await api.query_playercard_info(request.query.playerId);
     return response.json(player_query);
 });
