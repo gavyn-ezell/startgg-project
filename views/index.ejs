@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSBU Player Info</title>
+    
+    <!--Enabling Custom Player Card Element-->
+    <script src="source/scripts/guest/PlayerCard.js" type="module"></script>
+    
+    <!--Main Stylesheets and Scripts-->
+    <link rel="stylesheet" href="./source/static/main.css">
+    <script type="module" src="./source/scripts/guest/main.js"></script>
+
+    <!--FAVICO-->
+    <link rel="icon" type="image/x-icon" href="./source/static/images/favico.ico"/>
+</head>
+<body>
+    <!--Sticky Navigation Bar-->
+    <nav class="navbar">
+        <ul>
+        <li id="search-nav">ABOUT</li>
+          <li id="search-nav">SEARCH</li>
+          <li id="dashboard-nav">PINNED</li>
+          <li><a href="/user/login">LOGIN</a></li>
+          <li><a href="/user/register">REGISTER</a></li>
+        </ul>
+    </nav>
+    <!--Search Area for Player Info-->
+    <div id="search-section">
+        <h2 class="area-headers">FIND PLAYER INFO</h2>
+        <form autocomplete="off" id="player-search-form">
+                <div id="autocomplete">
+                    <input type="text" id="playerTag" placeholder="Search Player" name="playerTag">
+                </div>
+                <br>  
+                <input type="submit" id="player-search-form-submission" name="player-search-form-submission" value="Search">
+        </form>
+
+        <div id="player-search-card"></div>
+        <br>
+    </div>
+    <!--Simple <br> used for navbar scrolling-->
+    <br id="dashboard-nav-pos">
+    <br> 
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <!--User's Player Dashboard-->
+    <h2 id="dashboard-section" class="area-headers">PINNED PLAYERS</h2>
+    <div id="card-container">
+    </div>
+</body>
+</html>

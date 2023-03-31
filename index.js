@@ -1,92 +1,49 @@
-//Setting up Express app
-const fetch = require('node-fetch');
+//SETTING UP OUR NODE APP DEPENDENCIES
 const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
 const app = express();
-
 require('dotenv').config();
-app.use(express.static('public'))
-app.listen(3000, () => console.log('Express App Listening at: 3000'));
+const authRoute = require('./routes/auth');
+const loggedRoute = require('./routes/logged');
+const api = require('./utils/api');
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: false}));
+app.use(express.static(__dirname + '/public'));
+app.use(express.json());
 
-/* 
-* Server side POST request for grabbing a player's player card data 
-*/
+app.use(cookieParser());
+app.use(
+  session({
+    secret: `${process.env.SESSION_SECRET}`,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+//SIMPLE middleware, if we are logged in (aka user session), never load the guest page, just go to user's dashboard
+function alreadyAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect('/user/dashboard');
+  }
+  return next();
+}
+
+app.listen(3000, ()=> {console.log("LISTENING AT 3000")})
+
+//guest page, uses local storage for monitored list, doesn't need registered account
+app.get("/", alreadyAuthenticated, (req, res) => {
+  return res.render('index.ejs')
+})
+//routes for login page, and register page
+app.use('/user', authRoute);
+app.use('/user', loggedRoute);
+
+//post request for grabbing a startgg User's information, using STARTGG API
 app.post('/player', async (request, response) => {
-    const player_query = await query_playercard_info(request.query.playerId);
+    const player_query = await api.query_playercard_info(request.query.playerId);
     return response.json(player_query);
 });
-
-
-/**
- * Given a playerId, grab the the necessary player card data using
- * Start.gg API. Uses GraphQL Query.
- * 
- * params playerId: String
- * 
- * returns: result: Object
- */
-async function query_playercard_info(playerId) {
-
-    //setting up the query string
-    let query_playercard_info = `
-    query ($playerId: ID!) {
-      player(id: $playerId) {
-        recentStandings(videogameId: 1386, limit: 3) {
-              placement
-              entrant {
-                event {
-                  name
-                  numEntrants
-                  tournament {
-                    name
-                  }
-                }
-              }
-            } 
-        user {
-          location {
-            country
-          }
-          tournaments (query: {perPage: 8, page: 1}) {
-              nodes {
-                name
-                slug
-                id
-                numAttendees
-                countryCode
-                startAt
-              }
-          }
-          authorizations {
-            externalUsername
-            type
-            url
-          }
-          images (type: "profile") {
-            url
-          }
-        }
-      }
-    }
-    `;
-    //using query string for proper request for data
-    let result = await fetch('https://api.start.gg/gql/alpha', {
-              method: 'POST',
-              headers: {
-                  'Authorization': `Bearer ${process.env.API_KEY}`,
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-              },
-              body: JSON.stringify({
-                  'query': query_playercard_info,
-                  'variables': {
-                    "playerId": playerId
-                  }
-              })
-  
-          }).then(response => {
-              return response.json();
-          }).then(data => {
-              return data;
-          });
-    return result;
-}

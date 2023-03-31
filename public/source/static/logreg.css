@@ -1,0 +1,59 @@
+/* STYLING MADE PURELY WITH CHAT GPT */
+body {
+    background-color: #f1f1f1;
+  }
+  
+  h1 {
+    text-align: center;
+    font-size: 50px;
+    color: #333;
+    margin-top: 50px;
+  }
+  
+  form {
+    width: 400px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+  
+  label {
+    display: block;
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 20px;
+  }
+  
+  button[type="submit"] {
+    background-color: #4CAF50;
+    color: #fff;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #3e8e41;
+  }
+  
+  @media only screen and (max-width: 600px) {
+    form {
+      width: 100%;
+    }
+  }
+  

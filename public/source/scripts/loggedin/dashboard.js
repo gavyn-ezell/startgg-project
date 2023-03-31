@@ -1,20 +1,17 @@
-//using db for playerTag's associated playerId (within Startgg)
-import players from './players.json' assert {type: 'json'};
-
-//setting up site on load
+import players from '../players.json' assert {type: 'json'};
 window.addEventListener("DOMContentLoaded", init);
 
+/*
+THIS JS FILE IS SIMILAR TO MAIN.JS, WITH SLIGHT CHANGES TO ACCOMODATE FOR USER'S SESSION, COMMUNICATION WITH SQL DB
+*/
 
 /*
 * Init function calls necessary functions for proper
 * site setup and functionality (client side)
-*
 */
 function init() {
   window.scrollTo(0, 0);
   setupNavBar();
-  loadPlayerCards();
-  initFormHandler();
   let input = document.getElementById("playerTag")
   autocomplete(input, Object.keys(players));
 }
@@ -22,7 +19,6 @@ function init() {
 /*
 * Setups up navbar for proper scrolling and navigation
 * throughout the website
-*
 */
 function setupNavBar() {
   let search = document.getElementById("search-nav");
@@ -35,35 +31,27 @@ function setupNavBar() {
   })
 }
 
-/*
-* Loading the page with player cards of players who were
-* previosuly pinned/saved by user
-*
-* TODO: Not use local storage, backend/server, user-specific integration
-*/
-async function loadPlayerCards() {
+//ejs files uses this function for loading player cardsm, not an automatic function that is called on start
+export async function loadPlayerCards(monitoredList) {
   //grabbing reference to flexbox for player cards and players that we have to load
   let flexbox = document.getElementById("card-container");
-  let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
-  
-  //loading localStorage key if first time on site
-  if (!(pinnedPlayers)) {
-    localStorage.setItem("pinnedPlayers", JSON.stringify([]));
+  //let pinnedPlayers = JSON.parse(localStorage.getItem("pinnedPlayers"));
+
+  if (monitoredList.length == 0) {
     return;
   }
-  else {
-    //load each player card
-    for (let i in pinnedPlayers) {
-      //make request and make object
-      let playerCardObject = await makePlayerCardData(pinnedPlayers[i]);
-      
-      //create custom player card
-      let playerCard = document.createElement('player-card')
-      playerCardObject["needRemove"] = true;
-      playerCard.data = playerCardObject;
-      //add player card to flexbox
-      flexbox.append(playerCard);
-    }
+  
+  //load each player card
+  for (let i in monitoredList) {
+    //make request and make object
+    let playerCardObject = await makePlayerCardData(monitoredList[i]);
+    
+    //create custom player card
+    let playerCard = document.createElement('player-card')
+    playerCardObject["needRemove"] = true;
+    playerCard.data = playerCardObject;
+    //add player card to flexbox
+    flexbox.append(playerCard);
   }
 }
 
@@ -73,7 +61,7 @@ async function loadPlayerCards() {
  * 
  * param - playerTag: String
 */
-async function makePlayerCardData(playerTag) {
+export async function makePlayerCardData(playerTag) {
   
   //setting up and making request for player's data
   let playerId = players[playerTag];
@@ -154,10 +142,10 @@ async function makePlayerCardData(playerTag) {
 
 
 /*
-* Setting up the form functionality
+* Setting up the form functionality, loading a temp player card, solely for search purposes
 *
 */
-function initFormHandler() {
+export function initFormHandler(monitoredList) {
   //Grab the user inputted ID from the form submission box and create player card
   let theForm = document.querySelector('form');
   theForm.addEventListener('submit', async (e) => {
@@ -186,7 +174,7 @@ function initFormHandler() {
 
     //making player card and adding to dashboard container
     let playerCardObject = await makePlayerCardData(playerTag);
-    playerCardObject["needPin"] = !(JSON.parse(localStorage.getItem("pinnedPlayers")).includes(playerTag));
+    playerCardObject["needPin"] = !(monitoredList.includes(playerTag));
     let playerSearchCard = document.createElement('player-card')
     playerSearchCard.data = playerCardObject;
     searchDiv.append(playerSearchCard);
@@ -265,6 +253,7 @@ function autocomplete(inp, arr) {
         }
       }
   });
+  
   function addActive(x) {
     /*a function to classify an item as "active":*/
     if (!x) return false;

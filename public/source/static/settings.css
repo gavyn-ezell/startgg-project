@@ -1,0 +1,43 @@
+/* STYLING MADE PURELY WITH CHAT GPT */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 50px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 50px;
+    padding: 0;
+    text-align: center;
+}
+
+li {
+    margin-bottom: 20px;
+}
+
+b {
+    font-weight: bold;
+    color: #666;
+    margin-right: 10px;
+}
+
+button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 50px;
+}
