@@ -7,5 +7,6 @@ Allows fans to have a personalized dashboard, showing card summaries of their fa
 such as recent results, and upcoming tournaments
 
 > :wrench: **Upcoming Feature(s)** 
-> 1. Notification System for your favorite players
-> 2. Better UI, flash messages
+> 1. About page for site explanation and usage
+> 2. Notification System for your favorite players
+> 3. Better UI, flash messages
