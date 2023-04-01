@@ -3,6 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
+const flash = require('connect-flash');
 const app = express();
 require('dotenv').config();
 const authRoute = require('./routes/auth');
@@ -12,7 +13,7 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false}));
 app.use(express.static(__dirname + '/public'));
 app.use(express.json());
-
+app.use(flash())
 app.use(cookieParser());
 app.use(
   session({

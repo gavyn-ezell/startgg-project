@@ -56,4 +56,18 @@ body {
       width: 100%;
     }
   }
-  
+
+  .flash-message {
+    background-color: #f44336; /* red */
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+  }

@@ -18,7 +18,6 @@ router.get('/dashboard', ensureAuthenticated, async (req,res)=> {
     databaseHelpers.grabUserMonitored(userID)
     .then(monitoredList => {
       if (monitoredList) {
-        //console.log(monitoredList);
         return res.render('dashboard', { monitoredList: monitoredList });
       }
       return res.redirect('/user/dashboard')
@@ -50,7 +49,6 @@ router.post('/addMonitored', ensureAuthenticated, (req,res) => {
         return res.status(200);
       }
       else {
-        //console.log("FAILED TO REMOVE MONITORED PLAYER")
         return res.redirect('/user/dashboard')
      }
     }).catch((err) => {

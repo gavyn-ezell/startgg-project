@@ -5,6 +5,9 @@
 </head>
 <body>
     <h1>LOGIN</h1>
+    <% if (message != "") { %>
+        <p class="flash-message"><%= message %></p>
+    <% } %>
     <form action="/user/login" method="POST">
         <label for="email">Email</label>
         <input type="text" id="email" name="email"><br>

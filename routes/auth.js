@@ -6,7 +6,6 @@ const databaseHelpers = require('../utils/database')
 const passport = require('passport');
 require('../utils/local');
 
-
 //SIMPLE middleware, if we are logged in (aka user session), never load the guest page, just go to user's dashboard
 function alreadyAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -17,7 +16,8 @@ function alreadyAuthenticated(req, res, next) {
 
 //LOGIN PAGE
 router.get("/login", alreadyAuthenticated, (req, res) => {
-  return res.render('login.ejs');
+  const message = req.flash('error');
+  return res.render('login.ejs', { message: message });
 })
 
 //LOGIN POST
@@ -30,12 +30,13 @@ router.post("/login", [
   passport.authenticate('local', {
     successRedirect: '/user/dashboard',
     failureRedirect: '/user/login',
-    failureFlash: false, 
+    failureFlash: 'Invalid login. Please try again.', 
   }));
 
 //REGISTER PAGE
 router.get("/register", alreadyAuthenticated, (req, res) => {
-  res.render('register.ejs');
+  const message = req.flash('error');
+  return res.render('register.ejs', { message: message });
 })
 
 //REGISTER POST
@@ -62,6 +63,8 @@ router.post("/register", [
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log(errors.errors[0].msg);
+      req.flash('error', errors.errors[0].msg);
       return res.redirect('/user/register');
     }
     //we register our user into the DB!

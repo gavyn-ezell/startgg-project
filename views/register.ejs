@@ -4,7 +4,10 @@
     <link rel="stylesheet" href="/source/static/logreg.css">
 </head>
 <body>
-<h1>REGISTER</h1>
+    <h1>REGISTER</h1>
+    <% if (message != "") { %>
+        <p class="flash-message"><%= message %></p>
+    <% } %>
     <form class="form" method="POST" action="/user/register">
         <label for="email">Email</label>
         <input type="text" id="email" name="email"><br>
