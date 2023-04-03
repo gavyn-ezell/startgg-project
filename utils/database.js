@@ -129,6 +129,17 @@ const removeMonitored = async function(uID, sggID) {
         return Promise.resolve(false);
     }
 }
+const updatePhoneNumber = async function(uID, finalNumber) {
+    const query = `UPDATE user SET phone_number=? WHERE uID = ?`;
+    try {
+        const [result, metadata] = await pool.execute(query, [finalNumber, uID]);
+        return Promise.resolve(true);
+    } 
+    catch (error) {
+        return Promise.resolve(false);
+    }
+}
+
 
 module.exports.emailExists = emailExists
 module.exports.idExists = idExists
@@ -136,5 +147,6 @@ module.exports.grabUserInfo = grabUserInfo
 module.exports.grabUserMonitored = grabUserMonitored
 module.exports.addMonitored = addMonitored
 module.exports.removeMonitored = removeMonitored
+module.exports.updatePhoneNumber = updatePhoneNumber
 module.exports.addAccount = addAccount
 module.exports.verifyLogin = verifyLogin

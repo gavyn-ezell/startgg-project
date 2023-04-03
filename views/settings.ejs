@@ -4,17 +4,41 @@
     <link rel="stylesheet" href="/source/static/settings.css">
 </head>
 <body>
-    <h1>HELLO!!</h1>
-    <ul>
-        <h2>your info</h2>
+    <% if (message != "") { %>
+        <p class="flash-message"><%= message %></p>
+    <% } %>
+    <br>
+    <a href="/user/dashboard">DASHBOARD</a>
+    <h1>SETTINGS</h1>
+    <div class="settings">
         <b>EMAIL: </b> <%= email %> 
         <br>
-         <% if (phone_number == null) { %>
-            <p> <button>ADD PHONE NUMBER</button></p>
-        <%} else { %>
-        <p> <%= phone_number %> </p>
-        <% } %>
-    </ul>      
+            <% if (phone_number != null) { %>
+                <p> <%= phone_number %> </p>
+            <% } %>  
+        <p> <button id="addnumber">ADD/CHANGE NUMBER FOR NOTIFICATIONS</button></p>
+        <br>
+        <form id="formPopup" action="/user/settings/addNumber" method="POST" style="display:none;">
+            <p style="color:gray">Format: [Area Code] - [3 digits] - [4 digits]</p>
+            <input type="tel" id="areaCode" name="areaCode" maxlength="3" required>
+            <span>-</span>
+            <input type="tel" id="threedig" name="threedig" maxlength="3" required>
+            <span>-</span>
+            <input type="tel" id="fourdig" name="fourdig" maxlength="4" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+             
     <a href="/user/logout">LOG OUT</a>
 </body>
+<script>
+    const addBtn = document.querySelector("#addnumber"); 
+    addBtn.addEventListener("click", function() {
+        addBtn.innerText = addBtn.innerText === 'ADD/CHANGE NUMBER FOR NOTIFICATIONS' ? 'CANCEL' : 'ADD/CHANGE NUMBER FOR NOTIFICATIONS';
+        const formPopup = document.querySelector('#formPopup');
+        formPopup.style.display = formPopup.style.display === 'none' ? 'block' : 'none';
+
+    });
+
+    </script>
 </html>
