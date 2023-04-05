@@ -61,6 +61,7 @@ class PlayerCard extends HTMLElement {
             width: 50px;
             transform: translateX(-50%);
         }
+
         input[type=submit]:hover:not(.unpin){
             background-color: #3ad389;
         }
@@ -70,6 +71,16 @@ class PlayerCard extends HTMLElement {
         }
         input[type=submit]:active {
             background-color: grey;
+        }
+
+        .notifyBtn {
+            position: relative;
+            right: 50%;
+            transform: translateX(+100%);
+            tranform: translateY(-100%);
+        }
+        .notifyBtn:hover {
+            cursor: pointer;
         }
         `;
         //final shadow DOM setup
@@ -96,7 +107,7 @@ class PlayerCard extends HTMLElement {
    *                          "pic": "string",
    *                          "twitchUrl": "string",
    *                          "twitterUrl": "string",
-   *                          "upcoming": string array,
+   *                          "upcoming": {tourneyName: date in unix Timestamp}
    *                          "recent": string array
    *                        }
    */
@@ -114,6 +125,47 @@ class PlayerCard extends HTMLElement {
     * 
     *  Plus sign should only show up if player isn't already pinned
     */
+    if (data["needNotifyOn"] == true) {
+        let notifyBtn = document.createElement("img");
+        notifyBtn.setAttribute("class", "notifyBtn");
+        notifyBtn.setAttribute("src", "/source/static/images/notifyOn.png");
+        
+        notifyBtn.addEventListener("click", ()=> {
+            if(confirm("Turn off notifications for " + data["playerTag"])) {
+                fetch(`/user/dashboard/notifyOff?sggID=${data["playerId"]}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                setTimeout(() => { location.reload(); }, 1000);
+                location.reload();
+    
+            }
+        });
+
+        divEl.append(notifyBtn);
+    }
+    if (data["needNotifyOff"] == true) {
+        let notifyBtn = document.createElement("img");
+        notifyBtn.setAttribute("class", "notifyBtn");
+        notifyBtn.setAttribute("src", "/source/static/images/notifyOff.png");
+        notifyBtn.addEventListener("click", ()=> {
+            if(confirm("Turn on notifications for " + data["playerTag"])) {
+                fetch(`/user/dashboard/notifyOn?sggID=${data["playerId"]}&playerTag=${data["playerTag"]}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({"tourneys": data["upcoming"]})
+                });
+                setTimeout(() => { location.reload(); }, 2000);
+                location.reload();
+    
+            }
+        });
+        divEl.append(notifyBtn);
+    }
     if (data["needPin"]) {
        let pinBtn = document.createElement("input");
        pinBtn.setAttribute("type", "submit");
@@ -130,7 +182,7 @@ class PlayerCard extends HTMLElement {
 
         }
     });
-    
+
        divEl.append(pinBtn);
     }
     /**
@@ -155,7 +207,6 @@ class PlayerCard extends HTMLElement {
                 location.reload();
             }
         });
-     
         divEl.append(removeBtn);
      }
 
@@ -203,7 +254,11 @@ class PlayerCard extends HTMLElement {
 
     //populating card with upcoming tournies information
     let upcomingMsg = document.createElement("h2");
-    let upcomingTournies = data["upcoming"];
+    let upcomingTournies = []
+    for (const [key] of Object.entries(data["upcoming"])) {
+        upcomingTournies.push(`${key}`);
+    }
+    //let upcomingTournies = data["upcoming"];
     if (upcomingTournies.length == 0) {
         //we just want to say no tournies
         upcomingMsg.innerText = "No Upcoming Tournies";

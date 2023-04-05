@@ -76,6 +76,7 @@ async function makePlayerCardData(playerTag) {
     return;
   }
   fetch_result = await fetch_result.json();
+  console.log(fetch_result)
   
   //starts creating Object for custom player card
   

@@ -55,7 +55,7 @@ const addAccount = async function(email, password) {
 const verifyLogin = async function(email, rawPassword) {
 
     try {
-        const emailQuery = await pool.execute("SELECT * from user WHERE email = ?", [email])
+        const emailQuery = await pool.execute("SELECT * FROM user WHERE email = ?", [email])
         if (emailQuery[0].length == 1) { 
             const passwordMatch = await bcrypt.compare(rawPassword, emailQuery[0][0].password)
             if (passwordMatch) {
@@ -90,14 +90,19 @@ const grabUserInfo = async function(uID) {
 }
 
 const grabUserMonitored = async function(uID) {
-    const queryString = `SELECT m.startggUser_ID, s.playerTag
+    const queryString = `SELECT m.startggUser_ID, m.notify_on, s.playerTag
     FROM monitored m, startggUser s
     WHERE m.user_ID = ? AND m.startggUser_ID=s.sggID`;
     try {
         const query = await pool.execute(queryString, [uID])
         monitoredList = []
+
         for (x in query[0]) {
-            monitoredList.push(query[0][x].playerTag);
+            
+            const currTuple = []
+            currTuple.push(query[0][x].playerTag)
+            currTuple.push(query[0][x].notify_on)
+            monitoredList.push(currTuple);
         }
 
         
@@ -139,6 +144,16 @@ const updatePhoneNumber = async function(uID, finalNumber) {
         return Promise.resolve(false);
     }
 }
+const updateNotify = async function(uID, sggID) {
+    const query = `UPDATE monitored SET notify_on = NOT notify_on WHERE user_ID = ? AND startggUser_ID = ?`;
+    try {
+        const [result, metadata] = await pool.execute(query, [uID, sggID]);
+        return Promise.resolve(true);
+    } 
+    catch (error) {
+        return Promise.resolve(false);
+    }
+}
 
 
 module.exports.emailExists = emailExists
@@ -148,5 +163,6 @@ module.exports.grabUserMonitored = grabUserMonitored
 module.exports.addMonitored = addMonitored
 module.exports.removeMonitored = removeMonitored
 module.exports.updatePhoneNumber = updatePhoneNumber
+module.exports.updateNotify = updateNotify
 module.exports.addAccount = addAccount
 module.exports.verifyLogin = verifyLogin

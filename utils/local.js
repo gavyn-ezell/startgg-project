@@ -3,7 +3,6 @@ const localStrategy = require('passport-local').Strategy;
 const databaseHelpers = require('../utils/database')
 
 passport.serializeUser((userID, done) => {
-   // console.log("SERIALIZING USER");
     done(null, userID);
 });
 

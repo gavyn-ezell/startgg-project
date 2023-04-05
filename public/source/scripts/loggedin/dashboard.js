@@ -44,7 +44,7 @@ export async function loadPlayerCards(monitoredList) {
   //load each player card
   for (let i in monitoredList) {
     //make request and make object
-    let playerCardObject = await makePlayerCardData(monitoredList[i]);
+    let playerCardObject = await makePlayerCardData(monitoredList[i][0], monitoredList[i][1]);
     
     //create custom player card
     let playerCard = document.createElement('player-card')
@@ -61,7 +61,7 @@ export async function loadPlayerCards(monitoredList) {
  * 
  * param - playerTag: String
 */
-export async function makePlayerCardData(playerTag) {
+export async function makePlayerCardData(playerTag, notify) {
   
   //setting up and making request for player's data
   let playerId = players[playerTag];
@@ -98,7 +98,7 @@ export async function makePlayerCardData(playerTag) {
   }
 
   //THIRD: Upcoming Tournaments for player
-  result["upcoming"] = [];
+  result["upcoming"] = {};
   let tournies = fetch_result.data.player.user.tournaments.nodes;
   let upcomingTournies = []
   
@@ -118,7 +118,8 @@ export async function makePlayerCardData(playerTag) {
 
     //formatting string used for tourney info
     let tourneyDate = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
-    result["upcoming"].push(`${currTourney['name']}: ${tourneyDate}`);
+    result["upcoming"][currTourney['name']] = currTourney['startAt']
+    //result["upcoming"].push(`${currTourney['name']}: ${tourneyDate}`);
 
   }
 
@@ -136,7 +137,17 @@ export async function makePlayerCardData(playerTag) {
     let placing = placings[i].placement
     result["recent"].push(`${name}: ${placing}/${attendance} in ${eventName}`);
   }
-
+  result["needNotifyOn"] = false;
+  result["needNotifyOff"] = false;
+  //console.log(notify);
+  if (notify != null) {
+    if (notify == 1) {
+      result["needNotifyOn"] = true;
+    }
+    else {
+      result["needNotifyOff"] = true;
+    }
+  }
   return result;
 }
 
@@ -145,8 +156,12 @@ export async function makePlayerCardData(playerTag) {
 * Setting up the form functionality, loading a temp player card, solely for search purposes
 *
 */
-export function initFormHandler(monitoredList) {
+export function initFormHandler(monitoredListPre) {
   //Grab the user inputted ID from the form submission box and create player card
+  const monitoredList = []
+  for (let x in monitoredListPre) {
+    monitoredList.push(monitoredListPre[x][0])
+  }
   let theForm = document.querySelector('form');
   theForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -173,7 +188,7 @@ export function initFormHandler(monitoredList) {
     }
 
     //making player card and adding to dashboard container
-    let playerCardObject = await makePlayerCardData(playerTag);
+    let playerCardObject = await makePlayerCardData(playerTag, null);
     playerCardObject["needPin"] = !(monitoredList.includes(playerTag));
     let playerSearchCard = document.createElement('player-card')
     playerSearchCard.data = playerCardObject;

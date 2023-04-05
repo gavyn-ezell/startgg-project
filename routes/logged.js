@@ -3,6 +3,7 @@ const { Router } = require('express');
 const router = Router();
 const {body, validationResult} = require('express-validator');
 const databaseHelpers = require('../utils/database')
+const messagingHelpers = require('../utils/messaging');
 require('../utils/local');
 
 //SIMPLE middleware, if we are logged in continue to logged routes, if not go to the guest page
@@ -25,6 +26,53 @@ router.get('/dashboard', ensureAuthenticated, async (req,res)=> {
     }).catch((err) => {
       return res.redirect('/user/dashboard')
     })
+});
+
+router.post('/dashboard/notifyOn', ensureAuthenticated, async (req,res)=> {
+  //grab all monitored players 
+  const userID = req.user;
+  //first check if has number!
+  //update notify_on column in table
+  databaseHelpers.updateNotify(userID, req.query.sggID)
+    .then(result => {
+      if (result) {
+        //get the phone number for notifications
+        databaseHelpers.grabUserInfo(userID)
+          .then(userObject => {
+            if (userObject) {
+              //create the message
+              messagingHelpers.scheduleTourneyNotifications(req.body.tourneys, req.query.playerTag, userObject["phone_number"])
+            }
+            else {
+              return res.redirect('/user/dashboard');
+            }
+          })
+      }
+      else {
+        return res.redirect('/user/dashboard');
+      }
+    }).catch(err => {
+      return res.redirect('/user/dashboard');
+
+    })
+  return res.redirect('/user/dashboard');
+
+});
+
+router.post('/dashboard/notifyOff', ensureAuthenticated, async (req,res)=> {
+  //grab all monitored players 
+  const userID = req.user;
+  databaseHelpers.updateNotify(userID, req.query.sggID)
+  .then(result => {
+    if (result) {
+      return res.status(200);
+    }
+    else {
+      return res.redirect('/user/dashboard')
+   }
+  }).catch((err) => {
+    return res.redirect('/user/dashboard')
+  })
 });
 
 //grab's the user's info, and displays to settings page
