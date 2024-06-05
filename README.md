@@ -1,6 +1,6 @@
 # startgg-project
 
-**Description**
+**Description** (OUTDATED, WILL FIX/UPDATE/REDO EVENTUALLY)
 
 Site/dashboard for avid SSBU tournament watchers and fans.
 
